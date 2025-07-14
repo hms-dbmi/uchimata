@@ -230,6 +230,8 @@ function buildDisplayableStructure(
 
   const chrColumn = structure.structure.data.getChild("chr");
   const chrArr = chrColumn ? chrColumn.toArray() as string[] : undefined;
+  const idxColumn = structure.structure.data.getChild("index");
+  const idxArr = idxColumn ? idxColumn.toArray() as number[] : undefined;
 
   const positions: vec3[] = [];
   for (let i = 0; i < structure.structure.data.numRows; i++) {
@@ -242,6 +244,7 @@ function buildDisplayableStructure(
 
   const segments = breakIntoContinuousSegments(
     positions,
+    idxArr,
     chrArr,
     color,
     scale,
@@ -252,8 +255,59 @@ function buildDisplayableStructure(
   renderer.addSegments(segments);
 }
 
+type SegmentData = {
+  start: number;
+  end: number;
+}
+
+/**
+ * Returns an array of starts/ends of segments.
+ */
+function computeSegments(
+  rowsNum: number,
+  chromosomeColumn: string[] | undefined,
+  indicesColumn: number[] | undefined,
+): SegmentData[] {
+  const segmentsData: SegmentData[] = [];
+
+  let currentSegment: SegmentData = {
+    start: 0,
+    end: 0,
+  };
+
+  const chr = chromosomeColumn;
+  const idx = indicesColumn;
+
+  let cIndex = 0; //~ current index
+  while (cIndex < rowsNum) {
+    currentSegment.start = cIndex;
+    while (
+      (idx && (idx[cIndex + 1] - idx[cIndex] === 1)) && //~ neighbor condition
+      (chr && (chr[cIndex] === chr[cIndex + 1])) && //~ chromosome condition
+      (cIndex < rowsNum)) { //~ boundary condition
+      //~ move over
+      cIndex += 1;
+    }
+
+    currentSegment.end = cIndex;
+    segmentsData.push({
+      start: currentSegment.start,
+      end: currentSegment.end,
+    });
+    //~ move over
+    cIndex += 1;
+  }
+  console.log(`Found segments: ${segmentsData.length}`);
+  return segmentsData;
+}
+
+/**
+  *
+  * Breaks up the model into continous segments (same mark, possibly linked). Looks at both continuity in the indices and in the chromosome column.
+  */
 function breakIntoContinuousSegments(
   positions: vec3[],
+  indicesColumn: number[] | undefined,
   chromosomeColumn: string[] | undefined,
   color: ChromaColor | ChromaColor[],
   scale: number | number[],
@@ -263,41 +317,7 @@ function breakIntoContinuousSegments(
 ): DrawableMarkSegment[] {
   console.log("breaking into segments");
 
-  type SegmentData = {
-    start: number;
-    end: number;
-  }
-  const segmentsData: SegmentData[] = [];
-  let currentSegment: SegmentData = {
-    start: 0,
-    end: 0,
-  };
-
-  let currentIndex = 0;
-  let nextIndex = 1;
-
-  //debugger;
-  const chr = chromosomeColumn;
-  while (currentIndex < positions.length) {
-    currentSegment.start = currentIndex;
-    while (
-      (nextIndex - currentIndex === 1) && //~ neighbor condition
-      (chr && (chr[currentIndex] === chr[nextIndex])) && //~ chromosome condition
-      (currentIndex < positions.length)) { //~ boundary condition
-      //~ move over
-      currentIndex += 1;
-      nextIndex += 1;
-    }
-
-    currentSegment.end = currentIndex;
-    segmentsData.push({
-      start: currentSegment.start,
-      end: currentSegment.end,
-    });
-    //~ move over
-    currentIndex += 1;
-    nextIndex += 1;
-  }
+  const segmentsData = computeSegments(positions.length, chromosomeColumn, indicesColumn);
 
   //~ slice the bin data into segments based on the information computed in previous step
   const segments = segmentsData.map((segmentData) => {
