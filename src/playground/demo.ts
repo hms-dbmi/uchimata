@@ -11,6 +11,7 @@ enum ExampleType {
   WholeGenome,
   WholeGenomeWithLinks,
   Chunk,
+  BasicChunk
 };
 
 const setupWholeGenomeExampleWithLinks = async (): Promise<ChromatinScene> => {
@@ -49,6 +50,32 @@ const setupWholeGenomeExample = async (viewConfig: ViewConfig | undefined = unde
   };
 
   chromatinScene = addStructureToScene(chromatinScene, structure, vc);
+
+  return chromatinScene;
+};
+
+const setupBasicChunkExample = async (): Promise<ChromatinScene> => {
+  const urlChr2 =
+    "https://raw.githubusercontent.com/dvdkouril/chromospace-sample-data/main/chr2.arrow";
+
+  let chromatinScene = initScene();
+
+  const structure = await loadFromURL(urlChr2, {
+    center: true,
+    normalize: true,
+  });
+  if (!structure) {
+    console.warn("unable to load structure from URL!");
+    return chromatinScene;
+  }
+  console.log(`loaded structure: ${structure.name}`);
+
+  const viewConfig = {
+    color: "lightblue",
+    links: true,
+  };
+
+  chromatinScene = addStructureToScene(chromatinScene, structure, viewConfig);
 
   return chromatinScene;
 };
@@ -100,7 +127,9 @@ const setupChunkExample = async (): Promise<ChromatinScene> => {
 };
 
 (async () => {
-  const exampleToUse: ExampleType = ExampleType.WholeGenomeWithLinks as ExampleType;
+  //const exampleToUse: ExampleType = ExampleType.WholeGenomeWithLinks as ExampleType;
+  //const exampleToUse: ExampleType = ExampleType.Chunk as ExampleType;
+  const exampleToUse: ExampleType = ExampleType.BasicChunk as ExampleType;
   let chromatinScene = initScene();
   switch (exampleToUse) {
     case ExampleType.WholeGenome:
@@ -111,6 +140,9 @@ const setupChunkExample = async (): Promise<ChromatinScene> => {
       break;
     case ExampleType.WholeGenomeWithLinks:
       chromatinScene = await setupWholeGenomeExampleWithLinks();
+      break;
+    case ExampleType.BasicChunk:
+      chromatinScene = await setupBasicChunkExample();
       break;
   }
 
