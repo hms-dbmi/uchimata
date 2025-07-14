@@ -127,9 +127,9 @@ const setupChunkExample = async (): Promise<ChromatinScene> => {
 };
 
 (async () => {
-  //const exampleToUse: ExampleType = ExampleType.WholeGenomeWithLinks as ExampleType;
+  const exampleToUse: ExampleType = ExampleType.WholeGenomeWithLinks as ExampleType;
   //const exampleToUse: ExampleType = ExampleType.Chunk as ExampleType;
-  const exampleToUse: ExampleType = ExampleType.BasicChunk as ExampleType;
+  //const exampleToUse: ExampleType = ExampleType.BasicChunk as ExampleType;
   let chromatinScene = initScene();
   switch (exampleToUse) {
     case ExampleType.WholeGenome:
