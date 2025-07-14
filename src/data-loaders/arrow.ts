@@ -143,6 +143,20 @@ function saveOriginalXYZ(table: Table): Table {
   });
 }
 
+function generateIndexColumn(table: Table): Table {
+  const fields = table.schema.fields;
+  const oldTableObject = Object.fromEntries(
+    fields.map((f) => [f.name, table.getChild(f.name)?.toArray()]),
+  );
+
+  const indicesArray = Array.from({ length: table.numRows }, (_, i) => i);
+
+  return tableFromArrays({
+    ...oldTableObject,
+    index: indicesArray,
+  });
+}
+
 function processTableAsStructure(
   table: Table,
   options?: LoadOptions,
@@ -164,9 +178,14 @@ function processTableAsStructure(
     newTable = normalizeXYZColumns(newTable);
   }
 
+  // 4. generate `index` field
+  newTable = generateIndexColumn(newTable);
+
   console.log(
     `processed Table, with #cols: ${newTable.numCols} and #row: ${newTable.numRows}`,
   );
+  console.log(`fields: ${newTable.schema.fields.map((f) => f.name)}`);
+
   return {
     data: newTable,
     name: name ?? "Sample Chromatin Structure",
