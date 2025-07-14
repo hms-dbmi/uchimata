@@ -13,7 +13,6 @@ import type {
 import { ChromatinBasicRenderer } from "./renderer/ChromatinBasicRenderer";
 import type { DrawableMarkSegment } from "./renderer/renderer-types";
 import { valMap } from "./utils";
-import { start } from "repl";
 
 /**
  * Simple initializer for the ChromatinScene structure.
@@ -229,9 +228,9 @@ function buildDisplayableStructure(
   const zArr = structure.structure.data.getChild("z")?.toArray();
 
   const chrColumn = structure.structure.data.getChild("chr");
-  const chrArr = chrColumn ? chrColumn.toArray() as string[] : undefined;
+  const chrArr = chrColumn ? (chrColumn.toArray() as string[]) : undefined;
   const idxColumn = structure.structure.data.getChild("index");
-  const idxArr = idxColumn ? idxColumn.toArray() as number[] : undefined;
+  const idxArr = idxColumn ? (idxColumn.toArray() as number[]) : undefined;
 
   const positions: vec3[] = [];
   for (let i = 0; i < structure.structure.data.numRows; i++) {
@@ -250,7 +249,8 @@ function buildDisplayableStructure(
     scale,
     vc.mark || "sphere",
     vc.links ?? false,
-    vc.position ?? vec3.fromValues(0, 0, 0));
+    vc.position ?? vec3.fromValues(0, 0, 0),
+  );
 
   renderer.addSegments(segments);
 }
@@ -258,7 +258,7 @@ function buildDisplayableStructure(
 type SegmentData = {
   start: number;
   end: number;
-}
+};
 
 /**
  * Returns an array of starts/ends of segments.
@@ -276,7 +276,7 @@ function computeSegments(
   const chr = chromosomeColumn;
   const idx = indicesColumn;
 
-  for (let cIndex = 0; cIndex < rowsNum;) {
+  for (let cIndex = 0; cIndex < rowsNum; ) {
     const start = cIndex;
 
     while (
@@ -290,7 +290,7 @@ function computeSegments(
     const end = cIndex;
     segmentsData.push({
       start: start,
-      end: end
+      end: end,
     });
     cIndex += 1;
   }
@@ -300,9 +300,9 @@ function computeSegments(
 }
 
 /**
-  *
-  * Breaks up the model into continous segments (same mark, possibly linked). Looks at both continuity in the indices and in the chromosome column.
-  */
+ *
+ * Breaks up the model into continous segments (same mark, possibly linked). Looks at both continuity in the indices and in the chromosome column.
+ */
 function breakIntoContinuousSegments(
   positions: vec3[],
   indicesColumn: number[] | undefined,
@@ -315,7 +315,11 @@ function breakIntoContinuousSegments(
 ): DrawableMarkSegment[] {
   console.log("breaking into segments");
 
-  const segmentsData = computeSegments(positions.length, chromosomeColumn, indicesColumn);
+  const segmentsData = computeSegments(
+    positions.length,
+    chromosomeColumn,
+    indicesColumn,
+  );
 
   //~ slice the bin data into segments based on the information computed in previous step
   const segments = segmentsData.map((segmentData) => {

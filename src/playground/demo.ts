@@ -1,4 +1,4 @@
-import { ViewConfig } from "../chromatin-types.ts";
+import type { ViewConfig } from "../chromatin-types.ts";
 import {
   addStructureToScene,
   type ChromatinScene,
@@ -8,11 +8,11 @@ import {
 } from "../main.ts";
 
 enum ExampleType {
-  WholeGenome,
-  WholeGenomeWithLinks,
-  Chunk,
-  BasicChunk
-};
+  WholeGenome = 0,
+  WholeGenomeWithLinks = 1,
+  Chunk = 2,
+  BasicChunk = 3,
+}
 
 const setupWholeGenomeExampleWithLinks = async (): Promise<ChromatinScene> => {
   const vc: ViewConfig = {
@@ -24,9 +24,11 @@ const setupWholeGenomeExampleWithLinks = async (): Promise<ChromatinScene> => {
   };
 
   return await setupWholeGenomeExample(vc);
-}
+};
 
-const setupWholeGenomeExample = async (viewConfig: ViewConfig | undefined = undefined): Promise<ChromatinScene> => {
+const setupWholeGenomeExample = async (
+  viewConfig: ViewConfig | undefined = undefined,
+): Promise<ChromatinScene> => {
   const urlStevens =
     "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_5.arrow";
 
@@ -127,7 +129,8 @@ const setupChunkExample = async (): Promise<ChromatinScene> => {
 };
 
 (async () => {
-  const exampleToUse: ExampleType = ExampleType.WholeGenomeWithLinks as ExampleType;
+  const exampleToUse: ExampleType =
+    ExampleType.WholeGenomeWithLinks as ExampleType;
   //const exampleToUse: ExampleType = ExampleType.Chunk as ExampleType;
   //const exampleToUse: ExampleType = ExampleType.BasicChunk as ExampleType;
   let chromatinScene = initScene();
