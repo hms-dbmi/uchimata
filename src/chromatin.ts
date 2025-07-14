@@ -7,11 +7,13 @@ import type {
   ChromatinScene,
   ChromatinStructure,
   DisplayableStructure,
+  MarkTypes,
   ViewConfig,
 } from "./chromatin-types";
 import { ChromatinBasicRenderer } from "./renderer/ChromatinBasicRenderer";
 import type { DrawableMarkSegment } from "./renderer/renderer-types";
 import { valMap } from "./utils";
+import { start } from "repl";
 
 /**
  * Simple initializer for the ChromatinScene structure.
@@ -226,6 +228,9 @@ function buildDisplayableStructure(
   const yArr = structure.structure.data.getChild("y")?.toArray();
   const zArr = structure.structure.data.getChild("z")?.toArray();
 
+  const chrColumn = structure.structure.data.getChild("chr");
+  const chrArr = chrColumn ? chrColumn.toArray() as string[] : undefined;
+
   const positions: vec3[] = [];
   for (let i = 0; i < structure.structure.data.numRows; i++) {
     positions.push(vec3.fromValues(xArr[i], yArr[i], zArr[i]));
@@ -235,15 +240,80 @@ function buildDisplayableStructure(
   const color = resolveColor(structure.structure.data, vc);
   const scale = resolveScale(vc);
 
-  const segment: DrawableMarkSegment = {
-    mark: vc.mark || "sphere",
-    positions: positions,
-    attributes: {
-      color: color,
-      size: scale,
-      makeLinks: vc.links ?? false,
-      position: vc.position ?? vec3.fromValues(0, 0, 0),
-    },
+  const segments = breakIntoContinuousSegments(
+    positions,
+    chrArr,
+    color,
+    scale,
+    vc.mark || "sphere",
+    vc.links ?? false,
+    vc.position ?? vec3.fromValues(0, 0, 0));
+
+  renderer.addSegments(segments);
+}
+
+function breakIntoContinuousSegments(
+  positions: vec3[],
+  chromosomeColumn: string[] | undefined,
+  color: ChromaColor | ChromaColor[],
+  scale: number | number[],
+  mark: MarkTypes,
+  links: boolean,
+  position: vec3,
+): DrawableMarkSegment[] {
+  console.log("breaking into segments");
+
+  type SegmentData = {
+    start: number;
+    end: number;
+  }
+  const segmentsData: SegmentData[] = [];
+  let currentSegment: SegmentData = {
+    start: 0,
+    end: 0,
   };
-  renderer.addSegments([segment]);
+
+  let currentIndex = 0;
+  let nextIndex = 1;
+
+  //debugger;
+  const chr = chromosomeColumn;
+  while (currentIndex < positions.length) {
+    currentSegment.start = currentIndex;
+    while (
+      (nextIndex - currentIndex === 1) && //~ neighbor condition
+      (chr && (chr[currentIndex] === chr[nextIndex])) && //~ chromosome condition
+      (currentIndex < positions.length)) { //~ boundary condition
+      //~ move over
+      currentIndex += 1;
+      nextIndex += 1;
+    }
+
+    currentSegment.end = currentIndex;
+    segmentsData.push({
+      start: currentSegment.start,
+      end: currentSegment.end,
+    });
+    //~ move over
+    currentIndex += 1;
+    nextIndex += 1;
+  }
+
+  //~ slice the bin data into segments based on the information computed in previous step
+  const segments = segmentsData.map((segmentData) => {
+    const s = segmentData.start;
+    const e = segmentData.end + 1;
+    return {
+      mark: mark,
+      positions: positions.slice(s, e),
+      attributes: {
+        color: Array.isArray(color) ? color.slice(s, e) : color,
+        size: Array.isArray(scale) ? scale.slice(s, e) : scale,
+        makeLinks: links,
+        position: position,
+      },
+    };
+  });
+
+  return segments;
 }
