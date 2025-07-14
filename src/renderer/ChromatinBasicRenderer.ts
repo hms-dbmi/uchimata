@@ -12,10 +12,7 @@ import {
 } from "postprocessing";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import {
-  decideVisualParametersBasedOn1DData,
-  estimateBestSphereSize,
-} from "../utils";
+import { decideVisualParametersBasedOn1DData } from "../utils";
 import { computeTubes, decideGeometry } from "./render-utils";
 import type { DrawableMarkSegment } from "./renderer-types";
 
@@ -212,8 +209,6 @@ export class ChromatinBasicRenderer {
 
     const gPos = segment.attributes.position;
 
-    const sphereRadius = estimateBestSphereSize(segment.positions);
-
     //~ make the threejs objects
     const g = decideGeometry(segment.mark);
     const m = new THREE.MeshBasicMaterial({ color: "#FFFFFF" });
@@ -236,8 +231,8 @@ export class ChromatinBasicRenderer {
     this.meshes.push(meshInstcedSpheres);
 
     if (makeLinks) {
-      //const tubeSize = estimateDefaultTubeSize(segment);
-      //this.buildLinks(segment.positions, tubeSize, color);
+      //~ TODO: this is really hardcoded, should account for 1) fixed mark size, 2) variable mark size, 3) custom scaling factor for the links
+      const sphereRadius = 0.005;
       const tubeSize = 0.4 * sphereRadius;
       this.buildLinks(segment.positions, tubeSize, color, gPos);
     }
