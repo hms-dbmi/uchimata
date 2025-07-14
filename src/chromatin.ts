@@ -262,6 +262,9 @@ type SegmentData = {
 
 /**
  * Returns an array of starts/ends of segments.
+ * Two conditions for breaking into a segment:
+ *     - indices are continuous (safeguarding against gaps in the indices from filtering)
+ *     - chromosome annotation (not linking between chromosomes)
  */
 function computeSegments(
   rowsNum: number,
@@ -270,33 +273,28 @@ function computeSegments(
 ): SegmentData[] {
   const segmentsData: SegmentData[] = [];
 
-  let currentSegment: SegmentData = {
-    start: 0,
-    end: 0,
-  };
-
   const chr = chromosomeColumn;
   const idx = indicesColumn;
 
-  let cIndex = 0; //~ current index
-  while (cIndex < rowsNum) {
-    currentSegment.start = cIndex;
+  for (let cIndex = 0; cIndex < rowsNum;) {
+    const start = cIndex;
+
     while (
-      (idx && (idx[cIndex + 1] - idx[cIndex] === 1)) && //~ neighbor condition
-      (chr && (chr[cIndex] === chr[cIndex + 1])) && //~ chromosome condition
-      (cIndex < rowsNum)) { //~ boundary condition
-      //~ move over
+      cIndex + 1 < rowsNum &&
+      (!idx || idx[cIndex + 1] - idx[cIndex] === 1) &&
+      (!chr || chr[cIndex] === chr[cIndex + 1])
+    ) {
       cIndex += 1;
     }
 
-    currentSegment.end = cIndex;
+    const end = cIndex;
     segmentsData.push({
-      start: currentSegment.start,
-      end: currentSegment.end,
+      start: start,
+      end: end
     });
-    //~ move over
     cIndex += 1;
   }
+
   console.log(`Found segments: ${segmentsData.length}`);
   return segmentsData;
 }
