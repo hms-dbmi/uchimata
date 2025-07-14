@@ -1,12 +1,13 @@
+import type { Table } from "apache-arrow";
 import type { Color as ChromaColor } from "chroma-js";
 import chroma from "chroma-js";
 import { vec3 } from "gl-matrix";
 import type {
-  ChromatinChunk,
-  ChromatinModel,
+  AssociatedValuesColor,
   ChromatinScene,
-  DisplayableChunk,
-  DisplayableModel,
+  ChromatinStructure,
+  DisplayableStructure,
+  MarkTypes,
   ViewConfig,
 } from "./chromatin-types";
 import { ChromatinBasicRenderer } from "./renderer/ChromatinBasicRenderer";
@@ -22,14 +23,12 @@ export function initScene(): ChromatinScene {
   };
 }
 
-/**
- * Utility function to add a chunk to scene
- */
-export function addChunkToScene(
+export function addStructureToScene(
   scene: ChromatinScene,
-  chunk: ChromatinChunk,
+  structure: ChromatinStructure,
   viewConfig?: ViewConfig,
 ): ChromatinScene {
+  //~ TODO: reconsider: is this the right place and way to default the viewConfig?
   if (viewConfig === undefined) {
     viewConfig = {
       scale: 0.0001,
@@ -37,41 +36,13 @@ export function addChunkToScene(
     };
   }
 
-  const newDisplayableChunk: DisplayableChunk = {
-    kind: "chunk",
-    structure: chunk,
+  const newDisplayableChunk: DisplayableStructure = {
+    structure: structure,
     viewConfig: viewConfig,
   };
   scene = {
     ...scene,
     structures: [...scene.structures, newDisplayableChunk],
-  };
-  return scene;
-}
-
-/**
- * Utility function to add a model to scene
- */
-export function addModelToScene(
-  scene: ChromatinScene,
-  model: ChromatinModel,
-  viewConfig?: ViewConfig,
-): ChromatinScene {
-  if (viewConfig === undefined) {
-    viewConfig = {
-      scale: 0.0001,
-    };
-  }
-
-  const newDisplayableModel: DisplayableModel = {
-    kind: "model",
-    structure: model,
-    viewConfig: viewConfig,
-  };
-
-  scene = {
-    ...scene,
-    structures: [...scene.structures, newDisplayableModel],
   };
   return scene;
 }
@@ -133,220 +104,238 @@ export function display(
 }
 
 function buildStructures(
-  structures: (DisplayableChunk | DisplayableModel)[],
+  structures: DisplayableStructure[],
   renderer: ChromatinBasicRenderer,
 ) {
   for (const s of structures) {
-    switch (s.kind) {
-      case "model":
-        buildDisplayableModel(s, renderer);
-        break;
-      case "chunk":
-        buildDisplayableChunk(s, renderer);
-        break;
-    }
+    buildDisplayableStructure(s, renderer);
   }
 }
 
-function resolveScale(
-  vc: ViewConfig,
-  valuesOffset: number,
-  valuesLength: number,
-): number | number[] {
-  let scale: number | number[] = 0.01; //~ default scale
+function resolveScale(vc: ViewConfig): number | number[] {
+  const defaultScale = 0.005; //~ default scale
+  let scale: number | number[] = defaultScale;
+
   if (!vc.scale) {
-    scale = 0.01;
-  } else if (typeof vc.scale === "number") {
+    return scale;
+  }
+
+  if (typeof vc.scale === "number") {
+    //~ scale is a constant number for all bins
     scale = vc.scale;
   } else {
-    //~ vc.scale is AssociatedValuesScale
+    //~ scale is an array of numbers
     const values = vc.scale.values;
-    if (values.length <= 0) {
-      //~ nothing we can do about empty array of values
-      return scale;
+    if (!values) {
+      return defaultScale; //~ return default scale
     }
-
     if (values.every((d) => typeof d === "number")) {
       //~ quantitative size scale
-      const min = vc.scale.min;
-      const max = vc.scale.max;
-      const scaleMin = vc.scale.scaleMin || 0.0001;
-      const scaleMax = vc.scale.scaleMax || 0.005;
-      const valuesSubArr = values.slice(
-        valuesOffset,
-        valuesOffset + valuesLength,
-      );
-      scale = valuesSubArr.map((v) => valMap(v, min, max, scaleMin, scaleMax));
+      const min = vc.scale.min ?? 0; // default range <0, 1> seems reasonable...
+      const max = vc.scale.max ?? 1;
+      const scaleMin = vc.scale.scaleMin || 0.001; // TODO: define default somewhere more explicit
+      const scaleMax = vc.scale.scaleMax || 0.05; // TODO: define default somewhere more explicit
+      scale = values.map((v) => valMap(v, min, max, scaleMin, scaleMax));
     } else {
       //~ string[] => nominal size scale
-      console.warn("TODO: not implemented");
+      // TODO:
+      console.warn("TODO: not implemented (nominal size scale for chunk)");
     }
   }
   return scale;
 }
 
-/**
- * returns a tuple: [color/colors for each bin; new value for `usedColors` for the colorsMap lookup]
- * ...probably a bit unreadable solution, will fix later
- */
-function resolveColor(
-  vc: ViewConfig,
-  colorsMap: Map<string, string>,
-  usedColors: number,
-  valuesOffset: number,
-  valuesLength: number,
-): [ChromaColor | ChromaColor[], number] {
-  const defaultColor = chroma("#ff00ff");
-  let color: ChromaColor | ChromaColor[] = defaultColor;
-  if (vc.color !== undefined) {
-    if (typeof vc.color === "string") {
-      color = chroma(vc.color);
-    } else {
-      const values = vc.color.values;
-      if (values.length <= 0) {
-        //~ nothing we can do with an empty array...
-        return [defaultColor, usedColors]; //~ TODO: no need to return early...
-      }
+function mapValuesToColors(
+  values: number[] | string[],
+  vcColorField: AssociatedValuesColor,
+): ChromaColor[] {
+  const defaultColor = chroma("red"); //~ default color is red
 
-      const valuesSubArr = values.slice(
-        valuesOffset,
-        valuesOffset + valuesLength,
-      );
+  if (values.every((d) => typeof d === "number")) {
+    const min = vcColorField.min ?? 0; // default range <0, 1> seems reasonable...
+    const max = vcColorField.max ?? 1;
 
-      if (valuesSubArr.every((d) => typeof d === "number")) {
-        //~ quantitative color scale
-        const min = vc.color.min;
-        const max = vc.color.max;
-        //~ DK: For some reason, typescript complains if you don't narrow the type, even though the call is exactly the same
-        const colorScale =
-          typeof vc.color.colorScale === "string"
-            ? chroma.scale(vc.color.colorScale)
-            : chroma.scale(vc.color.colorScale);
-        color = valuesSubArr.map((v) => colorScale.domain([min, max])(v));
-      } else {
-        //~ string[] => nominal color scale
-        const colors = vc.color.colorScale;
-        color = valuesSubArr.map((v) => {
-          if (colorsMap.has(v)) {
-            const c = colorsMap.get(v);
-            return c ? chroma(c) : defaultColor;
-          }
-          colorsMap.set(v, colors[usedColors]);
-          usedColors += 1;
+    //~ DK: For some reason, typescript complains if you don't narrow the type, even though the call is exactly the same.
+    //~ This doesn't work: `const colorScale = chroma.scale(vc.color.colorScale)`
+    const colorScale =
+      typeof vcColorField.colorScale === "string"
+        ? chroma.scale(vcColorField.colorScale)
+        : chroma.scale(vcColorField.colorScale);
+    return values.map((v) => colorScale.domain([min, max])(v));
+  }
+  //~ values: string[] => nominal color scale
 
-          const c = colorsMap.get(v);
-          return c ? chroma(c) : defaultColor;
-        });
-      }
+  // one pass to find how many unique values there are in the column
+  const uniqueValues = new Set<string>(values);
+  const numUniqueValues = uniqueValues.size;
+
+  const mapColorsValues = new Map<string, ChromaColor>();
+
+  let colors: string[] = [];
+  if (typeof vcColorField.colorScale === "string") {
+    colors = chroma.scale(vcColorField.colorScale).colors(numUniqueValues);
+  } else {
+    colors = vcColorField.colorScale;
+  }
+  for (const [i, v] of [...uniqueValues].entries()) {
+    const newColor = colors[i];
+    if (!mapColorsValues.has(v)) {
+      mapColorsValues.set(v, chroma(newColor));
     }
   }
-  return [color, usedColors];
+
+  return values.map((v) => mapColorsValues.get(v) || defaultColor);
 }
 
-function buildDisplayableModel(
-  model: DisplayableModel,
+function resolveColor(
+  table: Table,
+  vc: ViewConfig,
+): ChromaColor | ChromaColor[] {
+  const defaultColor = chroma("red"); //~ default color is red
+  let color: ChromaColor | ChromaColor[] = defaultColor; //~ default color is red
+
+  if (!vc.color) {
+    return color; //~ return default color
+  }
+
+  if (typeof vc.color === "string") {
+    //~ color is a single color string
+    color = chroma(vc.color);
+  } else if (vc.color.field) {
+    //~ color should be based on values in a column name in 'field'
+    const fieldName = vc.color.field;
+    const valuesColumn = table.getChild(fieldName)?.toArray() as string[];
+    color = mapValuesToColors(valuesColumn, vc.color);
+  } else {
+    //~ color should be based on values in the 'values' array
+    if (!vc.color.values) {
+      return defaultColor; //~ return default color
+    }
+    color = mapValuesToColors(vc.color.values, vc.color);
+  }
+  return color;
+}
+
+function buildDisplayableStructure(
+  structure: DisplayableStructure,
   renderer: ChromatinBasicRenderer,
 ) {
-  const segments: DrawableMarkSegment[] = [];
+  const vc = structure.viewConfig;
 
-  const modelPosition = model.viewConfig.position ?? vec3.fromValues(0, 0, 0);
+  //1. assemble the xyz into vec3s
+  const xArr = structure.structure.data.getChild("x")?.toArray();
+  const yArr = structure.structure.data.getChild("y")?.toArray();
+  const zArr = structure.structure.data.getChild("z")?.toArray();
 
-  const colorsMap = new Map<string, string>();
-  let usedColors = 0;
-  let valuesIndexOffset = 0;
-  for (const [_, part] of model.structure.parts.entries()) {
-    const vc = model.viewConfig;
+  const chrColumn = structure.structure.data.getChild("chr");
+  const chrArr = chrColumn ? (chrColumn.toArray() as string[]) : undefined;
+  const idxColumn = structure.structure.data.getChild("index");
+  const idxArr = idxColumn ? (idxColumn.toArray() as number[]) : undefined;
 
-    const scale = resolveScale(vc, valuesIndexOffset, part.chunk.bins.length);
-
-    //~ bit more complicated, due to the need to remember
-    //~ which values are mapped to which colors from the unsorted colormap
-    const [color, newUsedColors] = resolveColor(
-      vc,
-      colorsMap,
-      usedColors,
-      valuesIndexOffset,
-      part.chunk.bins.length,
-    );
-    usedColors = newUsedColors; //~ for better readability
-
-    const segment: DrawableMarkSegment = {
-      mark: model.viewConfig.mark || "sphere",
-      positions: part.chunk.bins,
-      attributes: {
-        color: color,
-        size: scale,
-        makeLinks: model.viewConfig.links || false,
-        position: modelPosition,
-      },
-    };
-    segments.push(segment);
-    valuesIndexOffset += part.chunk.bins.length;
+  const positions: vec3[] = [];
+  for (let i = 0; i < structure.structure.data.numRows; i++) {
+    positions.push(vec3.fromValues(xArr[i], yArr[i], zArr[i]));
   }
+
+  //2. calculate the visual attributes based on the viewConfig
+  const color = resolveColor(structure.structure.data, vc);
+  const scale = resolveScale(vc);
+
+  const segments = breakIntoContinuousSegments(
+    positions,
+    idxArr,
+    chrArr,
+    color,
+    scale,
+    vc.mark || "sphere",
+    vc.links ?? false,
+    vc.position ?? vec3.fromValues(0, 0, 0),
+  );
+
   renderer.addSegments(segments);
 }
 
-/*
- * Takes the data and viewConfig and makes specific DrawableSegments that the renderer can directly render (all visual attributes are decided)
+type SegmentData = {
+  start: number;
+  end: number;
+};
+
+/**
+ * Returns an array of starts/ends of segments.
+ * Two conditions for breaking into a segment:
+ *     - indices are continuous (safeguarding against gaps in the indices from filtering)
+ *     - chromosome annotation (not linking between chromosomes)
  */
-function buildDisplayableChunk(
-  chunk: DisplayableChunk,
-  renderer: ChromatinBasicRenderer,
-) {
-  const vc = chunk.viewConfig;
+function computeSegments(
+  rowsNum: number,
+  chromosomeColumn: string[] | undefined,
+  indicesColumn: number[] | undefined,
+): SegmentData[] {
+  const segmentsData: SegmentData[] = [];
 
-  const chunkPosition = chunk.viewConfig.position ?? vec3.fromValues(0, 0, 0);
+  const chr = chromosomeColumn;
+  const idx = indicesColumn;
 
-  let scale: number | number[] = 0.01; //~ default scale
-  if (typeof vc.scale === "number") {
-    scale = vc.scale || 0.01;
-  } else {
-    if (vc.scale !== undefined) {
-      const values = vc.scale.values;
-      if (values.every((d) => typeof d === "number")) {
-        //~ quantitative size scale
-        const min = vc.scale.min;
-        const max = vc.scale.max;
-        const scaleMin = vc.scale.scaleMin || 0.001;
-        const scaleMax = vc.scale.scaleMax || 0.05;
-        scale = values.map((v) => valMap(v, min, max, scaleMin, scaleMax));
-      } else {
-        //~ string[] => nominal size scale
-        console.warn("TODO: not implemented (nominal size scale for chunk)");
-      }
+  for (let cIndex = 0; cIndex < rowsNum; ) {
+    const start = cIndex;
+
+    while (
+      cIndex + 1 < rowsNum &&
+      (!idx || idx[cIndex + 1] - idx[cIndex] === 1) &&
+      (!chr || chr[cIndex] === chr[cIndex + 1])
+    ) {
+      cIndex += 1;
     }
+
+    const end = cIndex;
+    segmentsData.push({
+      start: start,
+      end: end,
+    });
+    cIndex += 1;
   }
 
-  let color: ChromaColor | ChromaColor[] = chroma("red"); //~ default color is red
-  if (vc.color !== undefined) {
-    if (typeof vc.color === "string") {
-      color = chroma(vc.color);
-    } else {
-      const values = vc.color.values;
-      if (values.every((d) => typeof d === "number")) {
-        const min = vc.color.min;
-        const max = vc.color.max;
+  console.log(`Found segments: ${segmentsData.length}`);
+  return segmentsData;
+}
 
-        //~ DK: For some reason, typescript complains if you don't narrow the type, even though the call is exactly the same.
-        //~ This doesn't work: `const colorScale = chroma.scale(vc.color.colorScale)`
-        const colorScale =
-          typeof vc.color.colorScale === "string"
-            ? chroma.scale(vc.color.colorScale)
-            : chroma.scale(vc.color.colorScale);
-        color = values.map((v) => colorScale.domain([min, max])(v));
-      }
-    }
-  }
+/**
+ *
+ * Breaks up the model into continous segments (same mark, possibly linked). Looks at both continuity in the indices and in the chromosome column.
+ */
+function breakIntoContinuousSegments(
+  positions: vec3[],
+  indicesColumn: number[] | undefined,
+  chromosomeColumn: string[] | undefined,
+  color: ChromaColor | ChromaColor[],
+  scale: number | number[],
+  mark: MarkTypes,
+  links: boolean,
+  position: vec3,
+): DrawableMarkSegment[] {
+  console.log("breaking into segments");
 
-  const segment: DrawableMarkSegment = {
-    mark: chunk.viewConfig.mark || "sphere",
-    positions: chunk.structure.bins,
-    attributes: {
-      color: color,
-      size: scale,
-      makeLinks: chunk.viewConfig.links || false,
-      position: chunkPosition,
-    },
-  };
-  renderer.addSegments([segment]);
+  const segmentsData = computeSegments(
+    positions.length,
+    chromosomeColumn,
+    indicesColumn,
+  );
+
+  //~ slice the bin data into segments based on the information computed in previous step
+  const segments = segmentsData.map((segmentData) => {
+    const s = segmentData.start;
+    const e = segmentData.end + 1;
+    return {
+      mark: mark,
+      positions: positions.slice(s, e),
+      attributes: {
+        color: Array.isArray(color) ? color.slice(s, e) : color,
+        size: Array.isArray(scale) ? scale.slice(s, e) : scale,
+        makeLinks: links,
+        position: position,
+      },
+    };
+  });
+
+  return segments;
 }
