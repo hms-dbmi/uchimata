@@ -1,5 +1,5 @@
 {
-  "name": "chromospace",
+  "name": "uchimata",
   "version": "0.1.7",
   "author": "David Kouřil <david.kouril@gmail.com>",
   "license": "MIT",
@@ -15,14 +15,14 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/chromospace.umd.cjs",
-  "module": "./dist/chromospace.js",
+  "main": "./dist/uchimata.umd.cjs",
+  "module": "./dist/uchimata.js",
   "types": "./dist/main.d.ts",
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "import": "./dist/chromospace.js",
-      "require": "./dist/chromospace.umd.cjs"
+      "import": "./dist/uchimata.js",
+      "require": "./dist/uchimata.umd.cjs"
     }
   },
   "devDependencies": {
