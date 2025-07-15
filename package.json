@@ -36,6 +36,7 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "@duckdb/duckdb-wasm": "1.29.1-dev132.0",
     "apache-arrow": "^18.1.0",
     "chroma-js": "^3.1.2",
     "gl-matrix": "^3.4.3",
