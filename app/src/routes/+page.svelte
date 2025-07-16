@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ChromospaceApp from "$lib/ChromospaceApp.svelte";
+	import UchimataApp from "$lib/ChromospaceApp.svelte";
 </script>
 
 <svelte:head>
@@ -53,5 +53,5 @@
 </div>
 
 <div style="width: 800px">
-	<ChromospaceApp />
+	<UchimataApp />
 </div>
