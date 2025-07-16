@@ -3,26 +3,25 @@
 </script>
 
 <svelte:head>
-	<title>chromospace: visualize chromatin in space.</title>
+	<title>uchimata: visualize chromatin in space.</title>
 </svelte:head>
 
 <div class="max-w-2xl text-xl">
 	<p class="py-2">
-		<b>chromospace</b> is a javascript library for visualization of three-dimensional
+		<b>uchimata</b> is a javascript library for visualization of three-dimensional
 		chromatin models.
 	</p>
 	<p class="py-2">
 		Our goal is to provide a simple-to-use tool for working with 3D data in
 		the genomics context. We put emphasis on usage in various environments:
-		besides making a single visualization app, we also package chromospace
-		as a widget usable in python-based computational notebooks, such as
-		Jupyter.
+		besides making a single visualization app, we also package uchimata as a
+		widget usable in python-based computational notebooks, such as Jupyter.
 	</p>
 	<div>
-		The chromospace ecosystem consists of:
+		The uchimata ecosystem consists of:
 		<ul class="list-none list-inside ml-5 mt-2">
 			<li>
-				<b>chromospace</b>: the js library <br />
+				<b>uchimata</b>: the js library <br />
 
 				<span class="m-10">
 					&rarr; <a

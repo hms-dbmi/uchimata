@@ -6,20 +6,6 @@
 
 :warning: **NOTE** :construction:: `uchimata` is still very early in development. Expect breaking changes frequently!
 
-## Try it out
-
-In ObservableHQ:
-[https://observablehq.com/@david-kouril/chromospace-playground](https://observablehq.com/@david-kouril/chromospace-playground),
-
-or locally (using `pnpm`, not `npm`!):
-
-```
-git clone git@github.com:dvdkouril/uchimata.git
-cd uchimata
-pnpm install
-pnpm dev
-```
-
 ## Key concepts
 
 - **Genomics semantics**: Molecular visualization tools are often used for examining chromatin 3D data. The limiting factor in that case are the missing proper semantics when analyzing the spatial structures. For example, selecting part of the model should be possible using genomic coordinates (not "atom" indices): `let selectedPart = structure.getPartCoords("chr11:66546395-66563334");`
@@ -28,8 +14,10 @@ pnpm dev
 
 ## Authors
 
-Led by [David Kouřil](http://davidkouril.com) @ [HIDIVE lab](http://hidivelab.org) (Harvard Medical School).
+Led by [David Kouřil](https://davidkouril.com) @ [HIDIVE lab](http://hidivelab.org) (Harvard Medical School).
 
 ## Name
 
 The name **uchimata** roughly abbreviates "**u**nderstanding **ch**romatin **i**n **m**odels **a**pproximating **t**hree-dimensional **a**rchitecture".
+
+This tool was previously known as *chromospace*.
