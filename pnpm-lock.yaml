@@ -57,12 +57,12 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.0.0-beta.4
         version: 4.0.0-beta.4(postcss@8.4.49)(svelte@5.14.4)(typescript@5.7.2)(vite@6.0.4(@types/node@22.10.2)(jiti@2.4.1)(lightningcss@1.26.0))
-      chromospace:
-        specifier: workspace:^
-        version: link:..
       tailwindcss:
         specifier: ^4.0.0-beta.8
         version: 4.0.0-beta.8
+      uchimata:
+        specifier: workspace:^
+        version: link:..
     devDependencies:
       '@sveltejs/adapter-auto':
         specifier: ^3.3.1
