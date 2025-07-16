@@ -7,9 +7,9 @@ export default defineConfig({
     lib: {
       // Could also be a dictionary or array of multiple entry points
       entry: resolve(__dirname, "src/main.ts"),
-      name: "chromospace",
+      name: "uchimata",
       // the proper extensions will be added
-      fileName: "chromospace",
+      fileName: "uchimata",
       formats: ["es"],
     },
     emptyOutDir: false,

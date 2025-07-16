@@ -17,7 +17,7 @@
 </svelte:head>
 
 <div class="flex flex-col m-5">
-	<h1 class="text-5xl">chromospace</h1>
+	<h1 class="text-5xl">uchimata</h1>
 	<!-- <nav> -->
 	<!-- 	<ul class="flex space-x-4"> -->
 	<!-- 		<li> -->

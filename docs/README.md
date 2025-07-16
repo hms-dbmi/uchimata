@@ -1,40 +1,50 @@
-# chromospace documentation
+# documentation
 
 ## Main features:
 
 - simple way to visualize 3D chromatin models
 - easy to integrate in different environments and applications
-- expressive linking of additional genomic data to the 3D structure (mainly via
+- [WIP] expressive linking of additional genomic data to the 3D structure (mainly via
   mapping to visual attributes)
-- selecting parts based on genomic coordinates
+- [WIP] selecting parts based on genomic coordinates
 
 ## Quick start 
 
 ```typescript 
 //~ load test data 
-const testChunk = chs.loadFromURL("https://test.com/test.arrow", { center: true, normalize: true });
+const urlStevens =
+  "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_5.arrow";
+
+
+const structure = await loadFromURL(urlStevens, {
+  center: true,
+  normalize: true,
+});
 
 //~ config specifies how the 3D model will look 
 const viewConfig = {
-    scale: 0.01, 
-    color: "red", 
+  color: {
+    field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
+    colorScale: "spectral",
+  },
+  scale: 0.05,
 };
 
 //~ create a scene 
 let chromatinScene = chs.initScene(); 
-chromatinScene = chs.addChunkToScene(chromatinScene, testChunk, viewConfig);
+chromatinScene = addStructureToScene(chromatinScene, structure, vc);
 
 const [renderer, canvas] = chs.display(chromatinScene, { alwaysRedraw: false});
 
 //~ ObservableHQ only: mechanism for clean-up after cell re-render
 invalidation.then(() => renderer.endDrawing());
 
-return renderer.getCanvasElement(); 
+return renderer.getCanvasElement(); //~ add this element to the DOM any way you need
 ```
 
 ## Data loading
 
-The core chromospace library accepts only data that are in the [Apache
+The core uchimata library accepts only data that are in the [Apache
 Arrow](https://arrow.apache.org) IPC data format.
 
 ### Why Arrow?
@@ -70,46 +80,6 @@ formats to `.arrow` files.
 
 More info: [scripts folder](/scripts)
 
-## Core concepts
-
-## Chunk vs Model
-
-There's no standard when it comes to producing 3D chromatin models. This
-results in several file formats being used to transfer the XYZ bin positions,
-along with the information about which genomic ranges the model represents. In
-some cases, what we get is just the coordinates, which severely limits what we
-can do with such data.
-
-`ChromatinChunk` represents a single continuous, "anonymous", segment of DNA
-divided into bins. The assumption is that these bins are consecutive on the DNA
-sequence. The `ChromatinChunk` structure has no concept of what genomic region
-it represents. Our goal with chromospace is to allow viewing also these simple
-structures, without the need to specify false data just to see your structure.
-
-```typescript
-type ChromatinChunk = {
-    bins: vec3[];
-    /* ... */
-}
-```
-
-On the other hand, `ChromatinModel` requires that its individual parts are
-identified. `ChromatinModel` is composed of several `ChromatinParts` which each
-contain a `ChromatinChunk` but with a genomic range identification.
-
-```typescript
-type ChromatinPart = {
-  chunk: ChromatinChunk;
-  coordinates: GenomicCoordinates;
-  /* ... */
-};
-
-type ChromatinModel = {
-  parts: ChromatinPart[];
-  /* ... */
-};
-```
-
 ## View Config 
 
 The main data loaded from a file is a sequence of XYZ coordinates of bins.
@@ -130,12 +100,3 @@ export type ViewConfig = {
 The type unions with `AssociatedValuesScale` and `AssociatedValuesColor` exist
 to support binding other genomic data values onto these visual channels,
 instead of only setting them to constant value.
-
-## Selections
-
-In order to filter 3D models based on genomic coordinates, we provide functions
-to select subparts of a chunk or model. Chunks allow only simple fetching by
-bin indices.
-
-Models, on the other hand, can be filtered based on genomic coordinates, thanks
-to the fact that we know precisely which genomic parts a model represents.

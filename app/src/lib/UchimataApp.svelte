@@ -6,7 +6,7 @@
                 display,
                 loadFromURL,
                 type ChromatinChunk,
-        } from "chromospace";
+        } from "uchimata";
 
         const fetchTsv = async (url: string) => {
                 const response = await fetch(url);

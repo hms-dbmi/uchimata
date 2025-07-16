@@ -1,5 +1,5 @@
 {
-  "name": "@chromospace/chromospace",
-  "version": "0.1.3",
+  "name": "@dvdkouril/uchimata",
+  "version": "0.2",
   "exports": "./src/main.ts"
 }
