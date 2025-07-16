@@ -1,5 +1,5 @@
 <script lang="ts">
-	import UchimataApp from "$lib/ChromospaceApp.svelte";
+	import UchimataApp from "$lib/UchimataApp.svelte";
 </script>
 
 <svelte:head>
@@ -26,14 +26,8 @@
 				<span class="m-10">
 					&rarr; <a
 						class="text-blue-600 dark:text-blue-500 hover:underline"
-						href="https://github.com/dvdkouril/chromospace"
+						href="https://github.com/dvdkouril/uchimata"
 						target="_blank">github</a
-					>
-					|
-					<a
-						class="text-blue-600 dark:text-blue-500 hover:underline"
-						href="https://observablehq.com/@david-kouril/chromospace-playground"
-						>observablehq example</a
 					>
 				</span>
 			</li>
