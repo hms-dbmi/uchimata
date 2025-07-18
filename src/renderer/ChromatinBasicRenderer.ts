@@ -232,7 +232,7 @@ export class ChromatinBasicRenderer {
 
     if (makeLinks) {
       const markSize = segment.attributes.size;
-      const tubeScalingFactor = segment.attributes.linksScale; // default is to have the linking tubes be the same size as the marks
+      const tubeScalingFactor = segment.attributes.linksScale;
       this.buildLinks(
         segment.positions,
         markSize,
