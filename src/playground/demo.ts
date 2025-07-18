@@ -21,6 +21,7 @@ const setupWholeGenomeExampleWithLinks = async (): Promise<ChromatinScene> => {
       colorScale: "spectral",
     },
     links: true,
+    linksScale: 0.5,
   };
 
   return await setupWholeGenomeExample(vc);

@@ -23,4 +23,5 @@ export type VisualAttributes = {
   size: number | number[];
   makeLinks: boolean;
   position: vec3;
+  linksScale: number;
 };
