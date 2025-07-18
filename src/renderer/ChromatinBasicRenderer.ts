@@ -231,10 +231,15 @@ export class ChromatinBasicRenderer {
     this.meshes.push(meshInstcedSpheres);
 
     if (makeLinks) {
-      //~ TODO: this is really hardcoded, should account for 1) fixed mark size, 2) variable mark size, 3) custom scaling factor for the links
-      const sphereRadius = 0.005;
-      const tubeSize = 0.4 * sphereRadius;
-      this.buildLinks(segment.positions, tubeSize, color, gPos);
+      const markSize = segment.attributes.size;
+      const tubeScalingFactor = segment.attributes.linksScale;
+      this.buildLinks(
+        segment.positions,
+        markSize,
+        tubeScalingFactor,
+        color,
+        gPos,
+      );
     }
   }
 
@@ -243,19 +248,14 @@ export class ChromatinBasicRenderer {
    */
   buildLinks(
     positions: vec3[],
-    tubeSize: number,
+    markSize: number | number[],
+    tubeScalingFactor: number,
     color: ChromaColor | ChromaColor[],
     partPosition: vec3,
   ) {
     //~ tubes between tubes
     const tubes = computeTubes(positions);
-    const tubeGeometry = new THREE.CylinderGeometry(
-      tubeSize,
-      tubeSize,
-      1.0,
-      10,
-      1,
-    );
+    const tubeGeometry = new THREE.CylinderGeometry(1.0, 1.0, 1.0, 10, 1);
     const material = new THREE.MeshBasicMaterial({ color: "#FFFFFF" });
 
     const meshInstcedTubes = new THREE.InstancedMesh(
@@ -280,13 +280,21 @@ export class ChromatinBasicRenderer {
         tube.rotation.z,
         tube.rotation.order,
       );
-      dummyObj.scale.setY(tube.scale);
+      dummyObj.scale.setY(tube.scale); //~ This scales the tube length based on the distance between bins
+
+      if (Array.isArray(markSize)) {
+        dummyObj.scale.setX(markSize[i] * tubeScalingFactor);
+        dummyObj.scale.setZ(markSize[i] * tubeScalingFactor);
+      } else {
+        dummyObj.scale.setX(markSize * tubeScalingFactor);
+        dummyObj.scale.setZ(markSize * tubeScalingFactor);
+      }
+
       dummyObj.updateMatrix();
 
       //~ narrowing: ChromaColor or ChromaColor[]
       if (Array.isArray(color)) {
         colorObj.set(color[i].hex());
-        color;
       } else {
         colorObj.set(color.hex());
       }

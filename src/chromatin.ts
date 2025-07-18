@@ -249,6 +249,7 @@ function buildDisplayableStructure(
     scale,
     vc.mark || "sphere",
     vc.links ?? false,
+    vc.linksScale ?? 1.0,
     vc.position ?? vec3.fromValues(0, 0, 0),
   );
 
@@ -311,6 +312,7 @@ function breakIntoContinuousSegments(
   scale: number | number[],
   mark: MarkTypes,
   links: boolean,
+  linksScale: number,
   position: vec3,
 ): DrawableMarkSegment[] {
   console.log("breaking into segments");
@@ -332,6 +334,7 @@ function breakIntoContinuousSegments(
         color: Array.isArray(color) ? color.slice(s, e) : color,
         size: Array.isArray(scale) ? scale.slice(s, e) : scale,
         makeLinks: links,
+        linksScale: linksScale,
         position: position,
       },
     };

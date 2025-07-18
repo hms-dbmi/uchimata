@@ -12,6 +12,7 @@ enum ExampleType {
   WholeGenomeWithLinks = 1,
   Chunk = 2,
   BasicChunk = 3,
+  AdvancedChunk = 4,
 }
 
 const setupWholeGenomeExampleWithLinks = async (): Promise<ChromatinScene> => {
@@ -21,6 +22,7 @@ const setupWholeGenomeExampleWithLinks = async (): Promise<ChromatinScene> => {
       colorScale: "spectral",
     },
     links: true,
+    linksScale: 0.5,
   };
 
   return await setupWholeGenomeExample(vc);
@@ -82,6 +84,55 @@ const setupBasicChunkExample = async (): Promise<ChromatinScene> => {
   return chromatinScene;
 };
 
+const setupAdvancedChunkExample = async (): Promise<ChromatinScene> => {
+  const urlChr2 =
+    "https://raw.githubusercontent.com/dvdkouril/chromospace-sample-data/main/chr2.arrow";
+
+  let chromatinScene = initScene();
+
+  const structure = await loadFromURL(urlChr2, {
+    center: true,
+    normalize: true,
+  });
+  if (!structure) {
+    console.warn("unable to load structure from URL!");
+    return chromatinScene;
+  }
+  console.log(`loaded structure: ${structure.name}`);
+
+  const binsNum = structure.data.numRows;
+  //const randomValues = Array.from({ length: binsNum }, (_, i) => i);
+  //const randomValues = Array.from({ length: binsNum }, () => Math.random());
+  const sinValues = Array.from(
+    { length: binsNum },
+    (_, i) => 0.5 * Math.sin(i / 10) + 1,
+  );
+
+  const values = sinValues;
+
+  const viewConfig = {
+    color: {
+      values: values,
+      min: 0,
+      max: 1,
+      colorScale: "viridis",
+    },
+    links: true,
+    scale: {
+      values: values,
+      min: 0,
+      max: 1,
+      scaleMin: 0.005,
+      scaleMax: 0.01,
+    },
+    linksScale: 0.5,
+  };
+
+  chromatinScene = addStructureToScene(chromatinScene, structure, viewConfig);
+
+  return chromatinScene;
+};
+
 const setupChunkExample = async (): Promise<ChromatinScene> => {
   const urlStevensChrf =
     "https://raw.githubusercontent.com/dvdkouril/chromospace-sample-data/refs/heads/main/gosling-3d/Stevens-2017_GSM2219497_Cell_1_model_1_chr_f.arrow";
@@ -129,8 +180,9 @@ const setupChunkExample = async (): Promise<ChromatinScene> => {
 };
 
 (async () => {
-  const exampleToUse: ExampleType =
-    ExampleType.WholeGenomeWithLinks as ExampleType;
+  //const exampleToUse: ExampleType =
+  //  ExampleType.WholeGenomeWithLinks as ExampleType;
+  const exampleToUse: ExampleType = ExampleType.AdvancedChunk as ExampleType;
   //const exampleToUse: ExampleType = ExampleType.Chunk as ExampleType;
   //const exampleToUse: ExampleType = ExampleType.BasicChunk as ExampleType;
   let chromatinScene = initScene();
@@ -146,6 +198,9 @@ const setupChunkExample = async (): Promise<ChromatinScene> => {
       break;
     case ExampleType.BasicChunk:
       chromatinScene = await setupBasicChunkExample();
+      break;
+    case ExampleType.AdvancedChunk:
+      chromatinScene = await setupAdvancedChunkExample();
       break;
   }
 
