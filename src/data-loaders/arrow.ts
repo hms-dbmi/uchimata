@@ -149,6 +149,11 @@ function generateIndexColumn(table: Table): Table {
     fields.map((f) => [f.name, table.getChild(f.name)?.toArray()]),
   );
 
+  //~ Don't generate the index column if it already exists
+  if (table.schema.fields.some((f) => f.name === "index")) {
+    return table;
+  }
+
   const indicesArray = Array.from({ length: table.numRows }, (_, i) => i);
 
   return tableFromArrays({
