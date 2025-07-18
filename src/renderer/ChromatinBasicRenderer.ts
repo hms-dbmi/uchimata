@@ -250,8 +250,6 @@ export class ChromatinBasicRenderer {
     //~ tubes between tubes
     const tubes = computeTubes(positions);
     const tubeGeometry = new THREE.CylinderGeometry(
-      //tubeSize,
-      //tubeSize,
       1.0,
       1.0,
       1.0,
