@@ -233,7 +233,13 @@ export class ChromatinBasicRenderer {
     if (makeLinks) {
       const markSize = segment.attributes.size;
       const tubeScalingFactor = segment.attributes.linksScale; // default is to have the linking tubes be the same size as the marks
-      this.buildLinks(segment.positions, markSize, tubeScalingFactor, color, gPos);
+      this.buildLinks(
+        segment.positions,
+        markSize,
+        tubeScalingFactor,
+        color,
+        gPos,
+      );
     }
   }
 
@@ -249,13 +255,7 @@ export class ChromatinBasicRenderer {
   ) {
     //~ tubes between tubes
     const tubes = computeTubes(positions);
-    const tubeGeometry = new THREE.CylinderGeometry(
-      1.0,
-      1.0,
-      1.0,
-      10,
-      1,
-    );
+    const tubeGeometry = new THREE.CylinderGeometry(1.0, 1.0, 1.0, 10, 1);
     const material = new THREE.MeshBasicMaterial({ color: "#FFFFFF" });
 
     const meshInstcedTubes = new THREE.InstancedMesh(

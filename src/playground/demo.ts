@@ -103,7 +103,10 @@ const setupAdvancedChunkExample = async (): Promise<ChromatinScene> => {
   const binsNum = structure.data.numRows;
   //const randomValues = Array.from({ length: binsNum }, (_, i) => i);
   //const randomValues = Array.from({ length: binsNum }, () => Math.random());
-  const sinValues = Array.from({ length: binsNum }, (_, i) => 0.5 * Math.sin(i / 10) + 1);
+  const sinValues = Array.from(
+    { length: binsNum },
+    (_, i) => 0.5 * Math.sin(i / 10) + 1,
+  );
 
   const values = sinValues;
 
@@ -179,8 +182,7 @@ const setupChunkExample = async (): Promise<ChromatinScene> => {
 (async () => {
   //const exampleToUse: ExampleType =
   //  ExampleType.WholeGenomeWithLinks as ExampleType;
-  const exampleToUse: ExampleType =
-    ExampleType.AdvancedChunk as ExampleType;
+  const exampleToUse: ExampleType = ExampleType.AdvancedChunk as ExampleType;
   //const exampleToUse: ExampleType = ExampleType.Chunk as ExampleType;
   //const exampleToUse: ExampleType = ExampleType.BasicChunk as ExampleType;
   let chromatinScene = initScene();
