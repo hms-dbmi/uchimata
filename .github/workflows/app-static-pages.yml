@@ -19,18 +19,16 @@ jobs:
       # If you're using pnpm, add this step then change the commands and cache key below to use `pnpm`
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 8
 
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
-      - name: Install chromospace dependencies
+      - name: Install uchimata dependencies
         run: pnpm install
 
-      - name: Build chromospace lib
+      - name: Build uchimata lib
         run: pnpm build
 
       - name: Install dependencies
