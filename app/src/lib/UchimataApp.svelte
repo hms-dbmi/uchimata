@@ -8,6 +8,7 @@
         } from "uchimata";
         import type { ViewConfig } from "../../../dist/chromatin-types";
 
+        let appEl: HTMLElement | undefined = undefined;
         let chromatinScene = initScene();
 
         $: [renderer, canvas] = display(chromatinScene, {
@@ -63,11 +64,11 @@
                 });
 
                 //~ add canvas to the page
-                let appEl = document.querySelector("#app");
+                //let appEl = document.querySelector("#app");
                 if (canvas && appEl) {
                         appEl.appendChild(canvas);
                 }
         });
 </script>
 
-<div id="app"></div>
+<div bind:this={appEl}></div>

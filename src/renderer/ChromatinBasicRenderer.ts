@@ -177,6 +177,12 @@ export class ChromatinBasicRenderer {
     }
   }
 
+  setCameraParams(position: vec3, rotation: vec3) {
+    this.camera.position.set(position[0], position[1], position[2]);
+    this.camera.rotation.set(rotation[0], rotation[1], rotation[2]);
+    this.camera.updateProjectionMatrix();
+  }
+
   showDebugCube() {
     //~ just something to debug the placement of objects in scene
     const a = 1.0;
@@ -399,6 +405,8 @@ export class ChromatinBasicRenderer {
 
     this.update();
     // console.log("hovered bin:" + this.hoveredBinId);
+    console.log(`camera: ${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`);
+    console.log(`${this.camera.rotation.x}, ${this.camera.rotation.y}, ${this.camera.rotation.z}`);
 
     //~ from: https://threejs.org/manual/#en/responsive
     if (this.resizeRendererToDisplaySize(this.renderer)) {

@@ -36,6 +36,10 @@ export default defineConfig({
       //   },
       // },
       external: ["three"],
+      input: {
+        main: 'index.html',
+        linking: 'examples/linking-prototype/index.html',
+      }
     },
   },
   esbuild: {
