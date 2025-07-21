@@ -12,7 +12,8 @@ import type {
 } from "./chromatin-types";
 import { ChromatinBasicRenderer } from "./renderer/ChromatinBasicRenderer";
 import type { DrawableMarkSegment } from "./renderer/renderer-types";
-import { valMap } from "./utils";
+import { isBrewerPaletteName, valMap } from "./utils";
+import { assert } from "./assert";
 
 /**
  * Simple initializer for the ChromatinScene structure.
@@ -151,6 +152,12 @@ function mapValuesToColors(
 ): ChromaColor[] {
   const defaultColor = chroma("red"); //~ default color is red
 
+  //~ asserting that the colorScale supplied is a valid chroma scale
+  if (typeof vcColorField.colorScale === "string") {
+    assert(isBrewerPaletteName(vcColorField.colorScale));
+    vcColorField.colorScale;
+  }
+
   if (values.every((d) => typeof d === "number")) {
     const min = vcColorField.min ?? 0; // default range <0, 1> seems reasonable...
     const max = vcColorField.max ?? 1;
@@ -277,7 +284,7 @@ function computeSegments(
   const chr = chromosomeColumn;
   const idx = indicesColumn;
 
-  for (let cIndex = 0; cIndex < rowsNum; ) {
+  for (let cIndex = 0; cIndex < rowsNum;) {
     const start = cIndex;
 
     while (
