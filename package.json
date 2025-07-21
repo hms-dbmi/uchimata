@@ -43,5 +43,6 @@
     "n8ao": "^1.9.3",
     "postprocessing": "^6.36.4",
     "three": "^0.171.0"
-  }
+  },
+  "packageManager": "pnpm@10.3.0"
 }
