@@ -2,6 +2,7 @@ import type { Table } from "apache-arrow";
 import type { Color as ChromaColor } from "chroma-js";
 import chroma from "chroma-js";
 import { vec3 } from "gl-matrix";
+import { assert } from "./assert";
 import type {
   AssociatedValuesColor,
   ChromatinScene,
@@ -12,7 +13,7 @@ import type {
 } from "./chromatin-types";
 import { ChromatinBasicRenderer } from "./renderer/ChromatinBasicRenderer";
 import type { DrawableMarkSegment } from "./renderer/renderer-types";
-import { valMap } from "./utils";
+import { isBrewerPaletteName, valMap } from "./utils";
 
 /**
  * Simple initializer for the ChromatinScene structure.
@@ -150,6 +151,12 @@ function mapValuesToColors(
   vcColorField: AssociatedValuesColor,
 ): ChromaColor[] {
   const defaultColor = chroma("red"); //~ default color is red
+
+  //~ asserting that the colorScale supplied is a valid chroma scale
+  if (typeof vcColorField.colorScale === "string") {
+    assert(isBrewerPaletteName(vcColorField.colorScale));
+    vcColorField.colorScale;
+  }
 
   if (values.every((d) => typeof d === "number")) {
     const min = vcColorField.min ?? 0; // default range <0, 1> seems reasonable...

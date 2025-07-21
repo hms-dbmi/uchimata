@@ -12,7 +12,7 @@ export const customCubeHelix = chroma
   .gamma(0.8)
   .lightness([0.3, 0.8]);
 
-export const defaultColorScale = chroma.scale("viridis");
+export const defaultColorScale = chroma.scale("Viridis");
 
 export const fetchColorFromScale = (
   binAssocValue: number,
@@ -125,4 +125,16 @@ export function coordinateToBin(
     sequenceOffset = 0;
   }
   return Math.floor((coordinate - sequenceOffset) / resolution);
+}
+
+/*
+ * Asserting function for checking if a string is a valid chroma.js Brewer palette name
+ */
+export function isBrewerPaletteName(
+  colorString: string,
+): colorString is chroma.BrewerPaletteName {
+  const brewerPalettes = Object.keys(chroma.brewer).map((name) =>
+    name.toLowerCase(),
+  );
+  return brewerPalettes.includes(colorString.toLowerCase());
 }
