@@ -1,20 +1,12 @@
 <script lang="ts">
         import { onMount } from "svelte";
         import {
-                addChunkToScene,
                 initScene,
                 display,
                 loadFromURL,
-                type ChromatinChunk,
+                addStructureToScene,
         } from "uchimata";
-
-        const fetchTsv = async (url: string) => {
-                const response = await fetch(url);
-                if (!response.ok)
-                        throw new Error(`fetch failed: ${response.status}`);
-                const fileContent = await response.text();
-                return fileContent;
-        };
+        import type { ViewConfig } from "../../../dist/chromatin-types";
 
         let chromatinScene = initScene();
 
@@ -22,36 +14,16 @@
                 alwaysRedraw: true,
         });
 
-        export const saveScreenshot = () => {
-                console.log("saving screenshot");
-
-                renderer.render();
-                canvas.toBlob((blob) => {
-                        saveBlob(
-                                blob,
-                                `screencapture-${canvas.width}x${canvas.height}.png`,
-                        );
-                });
-
-                const saveBlob = function () {
-                        const a = document.createElement("a");
-                        document.body.appendChild(a);
-                        a.style.display = "none";
-                        return function saveData(blob, fileName) {
-                                const url = window.URL.createObjectURL(blob);
-                                a.href = url;
-                                a.download = fileName;
-                                a.click();
-                        };
-                };
-        };
-
         onMount(async () => {
-                const testChunk = (await loadFromURL(
+                const testChunk = await loadFromURL(
                         "https://raw.githubusercontent.com/dvdkouril/chromospace-sample-data/main/dros.3.arrow",
                         { center: true, normalize: true },
-                )) as ChromatinChunk;
-                const num = testChunk.bins.length;
+                );
+                if (!testChunk) {
+                        console.error("Failed to fetch sample data");
+                        return;
+                }
+                const num = testChunk.data.numRows;
                 const sineWave = (
                         amplitude: number,
                         frequency: number,
@@ -81,10 +53,10 @@
                         },
                 };
                 let chromatinScene = initScene();
-                chromatinScene = addChunkToScene(
+                chromatinScene = addStructureToScene(
                         chromatinScene,
                         testChunk,
-                        viewConfig,
+                        viewConfig as ViewConfig,
                 );
                 const [renderer, canvas] = display(chromatinScene, {
                         alwaysRedraw: true,
