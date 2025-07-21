@@ -1,3 +1,4 @@
+import { sign } from "crypto";
 import {
   addStructureToScene,
   ChromatinBasicRenderer,
@@ -6,6 +7,7 @@ import {
   initScene,
   loadFromURL,
 } from "../../src/main.ts";
+import { computed, effect, signal } from '@preact/signals-core';
 
 const setupAdvancedChunkExample = async (colorscale: string | undefined = undefined): Promise<ChromatinScene> => {
   const urlChr2 =
@@ -66,10 +68,48 @@ async function setScene(colorscale: string): Promise<[ChromatinBasicRenderer, HT
 
 (async () => {
 
+  const cameraState = signal({ position: { x: 0, y: 0, z: 3.0 }, rotation: { x: 0, y: 0, z: 0 } });
+
   const [rendererA, canvasA] = await setScene("viridis");
   const [rendererB, canvasB] = await setScene("spectral");
 
-  //rendererA.setCameraParams(vec3.fromValues(0, 0, 3.0));
+  rendererA.controls.addEventListener('change', () => {
+    cameraState.value = {
+      position: { x: rendererA.camera.position.x, y: rendererA.camera.position.y, z: rendererA.camera.position.z },
+      rotation: { x: rendererA.camera.rotation.x, y: rendererA.camera.rotation.y, z: rendererA.camera.rotation.z },
+    };
+  });
+
+  rendererB.controls.addEventListener('change', () => {
+    cameraState.value = {
+      position: { x: rendererB.camera.position.x, y: rendererB.camera.position.y, z: rendererB.camera.position.z },
+      rotation: { x: rendererB.camera.rotation.x, y: rendererB.camera.rotation.y, z: rendererB.camera.rotation.z },
+    };
+  });
+
+  effect(() => {
+    console.log(`camera changed: ${cameraState.value.position}`);
+    rendererB.camera.position.set(
+      cameraState.value.position.x,
+      cameraState.value.position.y,
+      cameraState.value.position.z
+    );
+    rendererB.camera.rotation.set(
+      cameraState.value.rotation.x,
+      cameraState.value.rotation.y,
+      cameraState.value.rotation.z
+    );
+    rendererA.camera.position.set(
+      cameraState.value.position.x,
+      cameraState.value.position.y,
+      cameraState.value.position.z
+    );
+    rendererA.camera.rotation.set(
+      cameraState.value.rotation.x,
+      cameraState.value.rotation.y,
+      cameraState.value.rotation.z
+    );
+  });
 
   //~ add canvas to the page
   const appElA = document.querySelector("#canvas-one");

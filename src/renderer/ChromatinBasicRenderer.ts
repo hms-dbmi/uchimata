@@ -30,6 +30,7 @@ export class ChromatinBasicRenderer {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
+  controls: OrbitControls;
   composer: EffectComposer;
   ssaoPasses: [N8AOPostPass, N8AOPostPass];
   meshes: THREE.InstancedMesh[] = [];
@@ -72,10 +73,10 @@ export class ChromatinBasicRenderer {
     this.renderer.setClearAlpha(0.0);
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(25, 2, 0.1, 1000);
-    const controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
     this.camera.position.z = 3.0;
-    controls.update();
+    this.controls.update();
 
     const lightA = new THREE.DirectionalLight();
     lightA.position.set(3, 10, 10);
@@ -181,6 +182,10 @@ export class ChromatinBasicRenderer {
     this.camera.position.set(position[0], position[1], position[2]);
     this.camera.rotation.set(rotation[0], rotation[1], rotation[2]);
     this.camera.updateProjectionMatrix();
+  }
+
+  getCameraControls(): OrbitControls {
+    return this.controls;
   }
 
   showDebugCube() {
@@ -405,8 +410,8 @@ export class ChromatinBasicRenderer {
 
     this.update();
     // console.log("hovered bin:" + this.hoveredBinId);
-    console.log(`camera: ${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`);
-    console.log(`${this.camera.rotation.x}, ${this.camera.rotation.y}, ${this.camera.rotation.z}`);
+    //console.log(`camera: ${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`);
+    //console.log(`${this.camera.rotation.x}, ${this.camera.rotation.y}, ${this.camera.rotation.z}`);
 
     //~ from: https://threejs.org/manual/#en/responsive
     if (this.resizeRendererToDisplaySize(this.renderer)) {
