@@ -130,8 +130,11 @@ export function coordinateToBin(
 /*
  * Asserting function for checking if a string is a valid chroma.js Brewer palette name
  */
-export function isBrewerPaletteName(colorString: string): colorString is chroma.BrewerPaletteName {
-  const brewerPalettes = Object.keys(chroma.brewer).map((name) => name.toLowerCase());
+export function isBrewerPaletteName(
+  colorString: string,
+): colorString is chroma.BrewerPaletteName {
+  const brewerPalettes = Object.keys(chroma.brewer).map((name) =>
+    name.toLowerCase(),
+  );
   return brewerPalettes.includes(colorString.toLowerCase());
 }
-

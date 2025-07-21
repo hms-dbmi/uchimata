@@ -2,6 +2,7 @@ import type { Table } from "apache-arrow";
 import type { Color as ChromaColor } from "chroma-js";
 import chroma from "chroma-js";
 import { vec3 } from "gl-matrix";
+import { assert } from "./assert";
 import type {
   AssociatedValuesColor,
   ChromatinScene,
@@ -13,7 +14,6 @@ import type {
 import { ChromatinBasicRenderer } from "./renderer/ChromatinBasicRenderer";
 import type { DrawableMarkSegment } from "./renderer/renderer-types";
 import { isBrewerPaletteName, valMap } from "./utils";
-import { assert } from "./assert";
 
 /**
  * Simple initializer for the ChromatinScene structure.
@@ -284,7 +284,7 @@ function computeSegments(
   const chr = chromosomeColumn;
   const idx = indicesColumn;
 
-  for (let cIndex = 0; cIndex < rowsNum;) {
+  for (let cIndex = 0; cIndex < rowsNum; ) {
     const start = cIndex;
 
     while (
