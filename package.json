@@ -40,9 +40,9 @@
     "apache-arrow": "^21.0.0",
     "chroma-js": "^3.1.2",
     "gl-matrix": "^3.4.3",
-    "n8ao": "^1.9.3",
-    "postprocessing": "^6.36.4",
-    "three": "^0.171.0"
+    "n8ao": "^1.10.1",
+    "postprocessing": "^6.37.6",
+    "three": "^0.178.0"
   },
   "packageManager": "pnpm@10.3.0"
 }
