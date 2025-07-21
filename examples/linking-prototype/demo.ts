@@ -8,6 +8,52 @@ import {
   loadFromURL,
 } from "../../src/main.ts";
 import { computed, effect, signal } from '@preact/signals-core';
+import { ViewConfig } from "../../src/chromatin-types.ts";
+
+const setupWholeGenomeExampleWithLinks = async (url: string): Promise<ChromatinScene> => {
+  const vc: ViewConfig = {
+    color: {
+      field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
+      colorScale: "spectral",
+    },
+    links: true,
+    linksScale: 0.5,
+  };
+
+  return await setupWholeGenomeExample(vc, url);
+};
+
+const setupWholeGenomeExample = async (
+  viewConfig: ViewConfig | undefined = undefined,
+  url: string
+): Promise<ChromatinScene> => {
+  //const urlStevens =
+  //  "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_5.arrow";
+  const urlStevens = url;
+
+  let chromatinScene = initScene();
+
+  const structure = await loadFromURL(urlStevens, {
+    center: true,
+    normalize: true,
+  });
+  if (!structure) {
+    console.warn("unable to load structure from URL!");
+    return chromatinScene;
+  }
+  console.log(`loaded structure: ${structure.name}`);
+
+  const vc = viewConfig ?? {
+    color: {
+      field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
+      colorScale: "spectral",
+    },
+  };
+
+  chromatinScene = addStructureToScene(chromatinScene, structure, vc);
+
+  return chromatinScene;
+};
 
 const setupAdvancedChunkExample = async (colorscale: string | undefined = undefined): Promise<ChromatinScene> => {
   const urlChr2 =
@@ -56,9 +102,13 @@ const setupAdvancedChunkExample = async (colorscale: string | undefined = undefi
   return chromatinScene;
 };
 
-async function setScene(colorscale: string): Promise<[ChromatinBasicRenderer, HTMLElement | HTMLCanvasElement]> {
+async function setScene(colorscale: string, url: string): Promise<[ChromatinBasicRenderer, HTMLElement | HTMLCanvasElement]> {
   let chromatinScene = initScene();
-  chromatinScene = await setupAdvancedChunkExample(colorscale);
+  //chromatinScene = await setupAdvancedChunkExample(colorscale);
+  //chromatinScene = await setupWholeGenomeExampleWithLinks("https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_5.arrow");
+
+  chromatinScene = await setupWholeGenomeExampleWithLinks(url);
+
   const [renderer, canvas] = display(chromatinScene, {
     alwaysRedraw: false,
     withHUD: false,
@@ -70,8 +120,8 @@ async function setScene(colorscale: string): Promise<[ChromatinBasicRenderer, HT
 
   const cameraState = signal({ position: { x: 0, y: 0, z: 3.0 }, rotation: { x: 0, y: 0, z: 0 } });
 
-  const [rendererA, canvasA] = await setScene("viridis");
-  const [rendererB, canvasB] = await setScene("spectral");
+  const [rendererA, canvasA] = await setScene("viridis", "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219501_Cell_5_model_10.arrow");
+  const [rendererB, canvasB] = await setScene("spectral", "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219502_Cell_6_model_1.arrow");
 
   rendererA.controls.addEventListener('change', () => {
     cameraState.value = {
