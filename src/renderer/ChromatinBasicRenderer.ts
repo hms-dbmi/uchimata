@@ -410,8 +410,6 @@ export class ChromatinBasicRenderer {
 
     this.update();
     // console.log("hovered bin:" + this.hoveredBinId);
-    //console.log(`camera: ${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`);
-    //console.log(`${this.camera.rotation.x}, ${this.camera.rotation.y}, ${this.camera.rotation.z}`);
 
     //~ from: https://threejs.org/manual/#en/responsive
     if (this.resizeRendererToDisplaySize(this.renderer)) {
