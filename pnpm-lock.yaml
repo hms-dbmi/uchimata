@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@preact/signals-core':
+        specifier: ^1.11.0
+        version: 1.11.0
       apache-arrow:
         specifier: ^21.0.0
         version: 21.0.0
@@ -440,6 +443,9 @@ packages:
 
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
+
+  '@preact/signals-core@1.11.0':
+    resolution: {integrity: sha512-jglbibeWHuFRzEWVFY/TT7wB1PppJxmcSfUHcK+2J9vBRtiooMfw6tAPttojNYrrpdGViqAYCbPpmWYlMm+eMQ==}
 
   '@rollup/rollup-android-arm-eabi@4.45.1':
     resolution: {integrity: sha512-NEySIFvMY0ZQO+utJkgoMiCAjMrGvnbDLHvcmlA33UXJpYBCvlBEbMMtV837uCkS+plG2umfhn0T5mMAxGrlRA==}
@@ -2067,6 +2073,8 @@ snapshots:
       fastq: 1.19.1
 
   '@polka/url@1.0.0-next.29': {}
+
+  '@preact/signals-core@1.11.0': {}
 
   '@rollup/rollup-android-arm-eabi@4.45.1':
     optional: true

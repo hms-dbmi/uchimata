@@ -30,6 +30,7 @@ export class ChromatinBasicRenderer {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
+  controls: OrbitControls;
   composer: EffectComposer;
   ssaoPasses: [N8AOPostPass, N8AOPostPass];
   meshes: THREE.InstancedMesh[] = [];
@@ -72,10 +73,10 @@ export class ChromatinBasicRenderer {
     this.renderer.setClearAlpha(0.0);
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(25, 2, 0.1, 1000);
-    const controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
     this.camera.position.z = 3.0;
-    controls.update();
+    this.controls.update();
 
     const lightA = new THREE.DirectionalLight();
     lightA.position.set(3, 10, 10);
@@ -175,6 +176,16 @@ export class ChromatinBasicRenderer {
     if (this.debugView) {
       this.showDebugCube();
     }
+  }
+
+  setCameraParams(position: vec3, rotation: vec3) {
+    this.camera.position.set(position[0], position[1], position[2]);
+    this.camera.rotation.set(rotation[0], rotation[1], rotation[2]);
+    this.camera.updateProjectionMatrix();
+  }
+
+  getCameraControls(): OrbitControls {
+    return this.controls;
   }
 
   showDebugCube() {
