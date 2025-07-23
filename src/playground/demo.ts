@@ -6,7 +6,7 @@ import {
   initScene,
   loadFromURL,
 } from "../main.ts";
-import { makeCuttingPlane } from "../selections/selections.ts";
+import { makeCuttingPlane, selectChromosome } from "../selections/selections.ts";
 
 enum ExampleType {
   WholeGenome = 0,
@@ -14,6 +14,7 @@ enum ExampleType {
   Chunk = 2,
   BasicChunk = 3,
   AdvancedChunk = 4,
+  WholeGenomeWithFilters = 5,
 }
 
 const setupWholeGenomeExampleWithLinks = async (): Promise<ChromatinScene> => {
@@ -28,6 +29,45 @@ const setupWholeGenomeExampleWithLinks = async (): Promise<ChromatinScene> => {
 
   return await setupWholeGenomeExample(vc);
 };
+
+const setupWholeGenomeExampleWithFilters = async (): Promise<ChromatinScene> => {
+
+  const urlStevens =
+    "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_5.arrow";
+
+  let chromatinScene = initScene();
+
+  const structure = await loadFromURL(urlStevens, {
+    center: true,
+    normalize: true,
+  });
+  if (!structure) {
+    console.warn("unable to load structure from URL!");
+    return chromatinScene;
+  }
+
+  //const newTable = await makeCuttingPlane(structure.data, "y");
+  const newTable = await selectChromosome(structure.data, "chr a");
+
+  const subsetStructure = {
+    ...structure,
+    data: newTable,
+  };
+
+  const vc: ViewConfig = {
+    color: {
+      field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
+      colorScale: "set1",
+    },
+    links: true,
+    linksScale: 0.5,
+  };
+
+  chromatinScene = addStructureToScene(chromatinScene, structure, { color: "gainsboro" });
+  chromatinScene = addStructureToScene(chromatinScene, subsetStructure, vc);
+
+  return chromatinScene;
+}
 
 const setupWholeGenomeExample = async (
   viewConfig: ViewConfig | undefined = undefined,
@@ -192,9 +232,10 @@ const setupChunkExample = async (): Promise<ChromatinScene> => {
 (async () => {
   //const exampleToUse: ExampleType =
   //  ExampleType.WholeGenomeWithLinks as ExampleType;
-  const exampleToUse: ExampleType = ExampleType.AdvancedChunk as ExampleType;
+  //const exampleToUse: ExampleType = ExampleType.AdvancedChunk as ExampleType;
   //const exampleToUse: ExampleType = ExampleType.Chunk as ExampleType;
   //const exampleToUse: ExampleType = ExampleType.BasicChunk as ExampleType;
+  const exampleToUse: ExampleType = ExampleType.WholeGenomeWithFilters as ExampleType;
   let chromatinScene = initScene();
   switch (exampleToUse) {
     case ExampleType.WholeGenome:
@@ -211,6 +252,9 @@ const setupChunkExample = async (): Promise<ChromatinScene> => {
       break;
     case ExampleType.AdvancedChunk:
       chromatinScene = await setupAdvancedChunkExample();
+      break;
+    case ExampleType.WholeGenomeWithFilters:
+      chromatinScene = await setupWholeGenomeExampleWithFilters();
       break;
   }
 

@@ -27,10 +27,16 @@ export async function makeCuttingPlane(
  * @param column - The column to filter by (default is "chr").
  *
 */
-export async function selectChromosome(chromName: string, column: string = "chr"): Promise<Table | null> {
-  const query = `SELECT * FROM structure WHERE ${column} = ${chromName}`;
+export async function selectChromosome(model: Table, chromName: string, column: string = "chr"): Promise<Table> {
+  //~ This is probably not the most efficient way to do this, but it works for now.
+  const db = await duckDB.getDatabase()
+  const conn = await db.connect();
+  conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+
+  const query = `SELECT * FROM structure WHERE ${column} ='${chromName}'`;
   console.log(`query: ${query}`);
 
-  console.warn("not implemented: selectChromosome() for selections.ts");
-  return null;
+  //console.warn("not implemented: selectChromosome() for selections.ts");
+  //return null;
+  return await duckDB.query(query);
 }
