@@ -1,4 +1,4 @@
-import { tableToIPC, type Table } from "apache-arrow";
+import { type Table, tableToIPC } from "apache-arrow";
 import { DuckDBSingleton } from "./DuckDBClient";
 
 const duckDB = new DuckDBSingleton();
@@ -9,10 +9,10 @@ const duckDB = new DuckDBSingleton();
 export async function makeCuttingPlane(
   model: Table,
   axis: "x" | "y" | "z" = "x",
-  cutAt: number = 0,
+  cutAt = 0,
 ): Promise<Table> {
   //~ This is probably not the most efficient way to do this, but it works for now.
-  const db = await duckDB.getDatabase()
+  const db = await duckDB.getDatabase();
   const conn = await db.connect();
   conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
 
@@ -26,10 +26,14 @@ export async function makeCuttingPlane(
  * @param chromName - The name of the chromosome to select.
  * @param column - The column to filter by (default is "chr").
  *
-*/
-export async function selectChromosome(model: Table, chromName: string, column: string = "chr"): Promise<Table> {
+ */
+export async function selectChromosome(
+  model: Table,
+  chromName: string,
+  column = "chr",
+): Promise<Table> {
   //~ This is probably not the most efficient way to do this, but it works for now.
-  const db = await duckDB.getDatabase()
+  const db = await duckDB.getDatabase();
   const conn = await db.connect();
   conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
 
