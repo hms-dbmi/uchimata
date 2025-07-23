@@ -5,8 +5,8 @@ import {
   display,
   initScene,
   loadFromURL,
-  get,
 } from "../main.ts";
+import { makeCuttingPlane } from "../selections.ts";
 
 enum ExampleType {
   WholeGenome = 0,
@@ -101,7 +101,8 @@ const setupAdvancedChunkExample = async (): Promise<ChromatinScene> => {
   }
   console.log(`loaded structure: ${structure.name}`);
 
-  const newTable = await get(structure.data, "chr a");
+  //const newTable = await get(structure.data, "chr a", );
+  const newTable = await makeCuttingPlane(structure.data, "y", 0.25);
 
   const subsetStructure = {
     ...structure,
