@@ -8,8 +8,9 @@ import {
 } from "../main.ts";
 import {
   makeCuttingPlane,
-  selectChromosome,
-  selectRange,
+  //selectChromosome,
+  //selectRange,
+  sphereSelect,
 } from "../selections/selections.ts";
 
 enum ExampleType {
@@ -52,7 +53,15 @@ const setupWholeGenomeExampleWithFilters =
 
     //const newTable = await makeCuttingPlane(structure.data, "y");
     //const newTable = await selectChromosome(structure.data, "chr a");
-    const newTable = await selectRange(structure.data, "chr s", 3000000, 6000000);
+    //const newTable = await selectRange(
+    //  structure.data,
+    //  "chr s",
+    //  3000000,
+    //  6000000,
+    //);
+    const newTable = await sphereSelect(structure.data, 0.1, 0, 0, 0.1);
+
+    const halfCutTable = await makeCuttingPlane(structure.data, "x", 0);
 
     const subsetStructure = {
       ...structure,
@@ -69,12 +78,22 @@ const setupWholeGenomeExampleWithFilters =
       linksScale: 1.0,
     };
 
-    chromatinScene = addStructureToScene(chromatinScene, structure, {
-      color: "gainsboro",
-      links: true,
-      scale: 0.004,
-      linksScale: 1.0,
-    });
+    chromatinScene = addStructureToScene(
+      chromatinScene,
+      { ...structure, data: halfCutTable },
+      {
+        color: "gainsboro",
+        links: true,
+        scale: 0.004,
+        linksScale: 1.0,
+      },
+    );
+    //chromatinScene = addStructureToScene(chromatinScene, structure, {
+    //  color: "gainsboro",
+    //  links: true,
+    //  scale: 0.004,
+    //  linksScale: 1.0,
+    //});
     chromatinScene = addStructureToScene(chromatinScene, subsetStructure, vc);
 
     return chromatinScene;
