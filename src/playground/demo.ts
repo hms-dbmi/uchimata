@@ -5,6 +5,7 @@ import {
   display,
   initScene,
   loadFromURL,
+  get,
 } from "../main.ts";
 
 enum ExampleType {
@@ -99,6 +100,8 @@ const setupAdvancedChunkExample = async (): Promise<ChromatinScene> => {
     return chromatinScene;
   }
   console.log(`loaded structure: ${structure.name}`);
+
+  get(structure.data, "chr a");
 
   const binsNum = structure.data.numRows;
   //const randomValues = Array.from({ length: binsNum }, (_, i) => i);
