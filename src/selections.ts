@@ -1,4 +1,4 @@
-import type { Table } from "apache-arrow";
+import { tableToIPC, type Table } from "apache-arrow";
 //import * as duckdb from '@duckdb/duckdb-wasm';
 import * as duckdb from '@duckdb/duckdb-wasm';
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url';
@@ -61,6 +61,21 @@ export async function testQuery(db: duckdb.AsyncDuckDB) {
   // Clean up
   await conn.close();
   await db.terminate();
+}
+
+export async function makeCuttingPlane(
+  model: Table,
+  db: duckdb.AsyncDuckDB
+): Promise<Table | null> {
+  // Create a connection
+  const conn = await db.connect();
+
+  //conn.insertArrowTable(model, { name: "structure" });
+  conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+
+  const result = await conn.query('SELECT * FROM structure WHERE z < 0');
+  const ipc = tableToIPC(result);
+  return result;
 }
 
 /**
