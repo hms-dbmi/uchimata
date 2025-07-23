@@ -12,6 +12,7 @@ export async function makeCuttingPlane(
   cutAt = 0,
 ): Promise<Table> {
   //~ This is probably not the most efficient way to do this, but it works for now.
+  //~ TODO: check whether the model has been already loaded into DuckDB?
   const db = await duckDB.getDatabase();
   const conn = await db.connect();
   conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
@@ -33,6 +34,7 @@ export async function selectChromosome(
   column = "chr",
 ): Promise<Table> {
   //~ This is probably not the most efficient way to do this, but it works for now.
+  //~ TODO: check whether the model has been already loaded into DuckDB?
   const db = await duckDB.getDatabase();
   const conn = await db.connect();
   conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
@@ -40,7 +42,25 @@ export async function selectChromosome(
   const query = `SELECT * FROM structure WHERE ${column} ='${chromName}'`;
   console.log(`query: ${query}`);
 
-  //console.warn("not implemented: selectChromosome() for selections.ts");
-  //return null;
+  return await duckDB.query(query);
+}
+
+export async function selectRange(
+  model: Table,
+  chromName: string,
+  start: number,
+  end: number,
+  chromColumn = "chr",
+  coordinateColumn = "coord"
+): Promise<Table> {
+  //~ This is probably not the most efficient way to do this, but it works for now.
+  //~ TODO: check whether the model has been already loaded into DuckDB?
+  const db = await duckDB.getDatabase();
+  const conn = await db.connect();
+  conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+
+  const query = `SELECT * FROM structure WHERE ${chromColumn} ='${chromName}' AND ${coordinateColumn} >= ${start} AND ${coordinateColumn} <= ${end}`;
+  console.log(`query: ${query}`);
+
   return await duckDB.query(query);
 }

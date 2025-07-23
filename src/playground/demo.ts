@@ -9,6 +9,7 @@ import {
 import {
   makeCuttingPlane,
   selectChromosome,
+  selectRange,
 } from "../selections/selections.ts";
 
 enum ExampleType {
@@ -50,7 +51,8 @@ const setupWholeGenomeExampleWithFilters =
     }
 
     //const newTable = await makeCuttingPlane(structure.data, "y");
-    const newTable = await selectChromosome(structure.data, "chr a");
+    //const newTable = await selectChromosome(structure.data, "chr a");
+    const newTable = await selectRange(structure.data, "chr s", 3000000, 6000000);
 
     const subsetStructure = {
       ...structure,
@@ -63,11 +65,15 @@ const setupWholeGenomeExampleWithFilters =
         colorScale: "set1",
       },
       links: true,
-      linksScale: 0.5,
+      //linksScale: 0.5,
+      linksScale: 1.0,
     };
 
     chromatinScene = addStructureToScene(chromatinScene, structure, {
       color: "gainsboro",
+      links: true,
+      scale: 0.004,
+      linksScale: 1.0,
     });
     chromatinScene = addStructureToScene(chromatinScene, subsetStructure, vc);
 
