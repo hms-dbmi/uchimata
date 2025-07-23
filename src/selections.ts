@@ -73,8 +73,8 @@ export async function makeCuttingPlane(
   //conn.insertArrowTable(model, { name: "structure" });
   conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
 
-  const result = await conn.query('SELECT * FROM structure WHERE z < 0');
-  const ipc = tableToIPC(result);
+  const result = await conn.query('SELECT * FROM structure WHERE y < 0');
+  //const ipc = tableToIPC(result);
   return result;
 }
 
@@ -89,6 +89,8 @@ export async function get(model: Table, coordinates: string): Promise<Table | nu
   console.log(coordinates);
 
   const db = await initializeDuckDB();
-  await testQuery(db);
-  return null;
+  //await testQuery(db);
+  const resultTable = await makeCuttingPlane(model, db);
+  console.log("resultTable", resultTable);
+  return resultTable;
 }

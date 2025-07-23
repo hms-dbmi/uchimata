@@ -101,11 +101,13 @@ const setupAdvancedChunkExample = async (): Promise<ChromatinScene> => {
   }
   console.log(`loaded structure: ${structure.name}`);
 
-  get(structure.data, "chr a");
+  const newTable = await get(structure.data, "chr a");
 
-  const binsNum = structure.data.numRows;
-  //const randomValues = Array.from({ length: binsNum }, (_, i) => i);
-  //const randomValues = Array.from({ length: binsNum }, () => Math.random());
+  const subsetStructure = {
+    ...structure,
+    data: newTable,
+  };
+  const binsNum = subsetStructure.data.numRows;
   const sinValues = Array.from(
     { length: binsNum },
     (_, i) => 0.5 * Math.sin(i / 10) + 1,
@@ -131,7 +133,11 @@ const setupAdvancedChunkExample = async (): Promise<ChromatinScene> => {
     linksScale: 0.5,
   };
 
-  chromatinScene = addStructureToScene(chromatinScene, structure, viewConfig);
+  chromatinScene = addStructureToScene(chromatinScene, subsetStructure, viewConfig);
+
+  chromatinScene = addStructureToScene(chromatinScene, structure, {
+    color: "gainsboro",
+  });
 
   return chromatinScene;
 };
