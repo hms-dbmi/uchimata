@@ -9,4 +9,4 @@ export type {
 } from "./chromatin-types.ts";
 export { load, loadFromURL } from "./data-loaders/arrow.ts";
 export { ChromatinBasicRenderer } from "./renderer/ChromatinBasicRenderer.ts";
-export { makeCuttingPlane, selectChromosome } from "./selections.ts";
+export { makeCuttingPlane, selectChromosome } from "./selections/selections.ts";

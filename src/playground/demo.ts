@@ -6,7 +6,7 @@ import {
   initScene,
   loadFromURL,
 } from "../main.ts";
-import { makeCuttingPlane } from "../selections.ts";
+import { makeCuttingPlane } from "../selections/selections.ts";
 
 enum ExampleType {
   WholeGenome = 0,
