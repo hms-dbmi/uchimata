@@ -11,11 +11,11 @@ export async function makeCuttingPlane(
   axis: "x" | "y" | "z" = "x",
   cutAt = 0,
 ): Promise<Table> {
-  //~ This is probably not the most efficient way to do this, but it works for now.
-  //~ TODO: check whether the model has been already loaded into DuckDB?
-  const db = await duckDB.getDatabase();
-  const conn = await db.connect();
-  conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+  if (!(await duckDB.getExistingTables()).includes("structure")) {
+    const db = await duckDB.getDatabase();
+    const conn = await db.connect();
+    conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+  }
 
   const query = `SELECT * FROM structure WHERE ${axis} < ${cutAt}`;
 
@@ -33,11 +33,11 @@ export async function selectChromosome(
   chromName: string,
   column = "chr",
 ): Promise<Table> {
-  //~ This is probably not the most efficient way to do this, but it works for now.
-  //~ TODO: check whether the model has been already loaded into DuckDB?
-  const db = await duckDB.getDatabase();
-  const conn = await db.connect();
-  conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+  if (!(await duckDB.getExistingTables()).includes("structure")) {
+    const db = await duckDB.getDatabase();
+    const conn = await db.connect();
+    conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+  }
 
   const query = `SELECT * FROM structure WHERE ${column} ='${chromName}'`;
   console.log(`query: ${query}`);
@@ -53,11 +53,11 @@ export async function selectRange(
   chromColumn = "chr",
   coordinateColumn = "coord",
 ): Promise<Table> {
-  //~ This is probably not the most efficient way to do this, but it works for now.
-  //~ TODO: check whether the model has been already loaded into DuckDB?
-  const db = await duckDB.getDatabase();
-  const conn = await db.connect();
-  conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+  if (!(await duckDB.getExistingTables()).includes("structure")) {
+    const db = await duckDB.getDatabase();
+    const conn = await db.connect();
+    conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+  }
 
   const query = `SELECT * FROM structure WHERE ${chromColumn} ='${chromName}' AND ${coordinateColumn} >= ${start} AND ${coordinateColumn} <= ${end}`;
   console.log(`query: ${query}`);
@@ -72,11 +72,11 @@ export async function sphereSelect(
   z: number,
   radius: number,
 ): Promise<Table> {
-  //~ This is probably not the most efficient way to do this, but it works for now.
-  //~ TODO: check whether the model has been already loaded into DuckDB?
-  const db = await duckDB.getDatabase();
-  const conn = await db.connect();
-  conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+  if (!(await duckDB.getExistingTables()).includes("structure")) {
+    const db = await duckDB.getDatabase();
+    const conn = await db.connect();
+    conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+  }
 
   const query = `SELECT * FROM structure WHERE POWER(x - ${x}, 2) + POWER(y - ${y}, 2) + POWER(z - ${z}, 2) <= POWER(${radius}, 2)`;
   console.log(`query: ${query}`);

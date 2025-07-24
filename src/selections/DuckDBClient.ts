@@ -63,6 +63,11 @@ export class DuckDBSingleton {
     }
   }
 
+  async getExistingTables(): Promise<string[]> {
+    const result = await this.query("SHOW TABLES");
+    return result.toArray().map(row => row.name);
+  }
+
   async terminate() {
     if (this.db) {
       await this.db.terminate();
