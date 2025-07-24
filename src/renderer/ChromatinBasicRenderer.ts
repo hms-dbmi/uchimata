@@ -138,7 +138,7 @@ export class ChromatinBasicRenderer {
       document.addEventListener("wheel", this.render);
       document.addEventListener("mousemove", this.render);
     }
-    document.addEventListener("mousemove", this.onMouseMove);
+    c.addEventListener("mousemove", this.onMouseMove);
   }
 
   getCanvasElement(): HTMLCanvasElement {
@@ -154,6 +154,11 @@ export class ChromatinBasicRenderer {
 
   addUpdateHUDCallback(cb: (text: string) => void) {
     this.updateCallback = cb;
+  }
+
+  clearScene() {
+    this.scene.clear();
+    this.markSegments = [];
   }
 
   /**

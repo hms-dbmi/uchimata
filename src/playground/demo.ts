@@ -301,11 +301,11 @@ const setupChunkExample = async (): Promise<ChromatinScene> => {
   //cutting-plane-slider
   const sliderEl = document.getElementById("cutting-plane-slider") as HTMLInputElement;
   if (sliderEl) {
-    sliderEl.addEventListener("input", async (_) => {
-      console.log(`slider value changed: ${sliderEl.value}`);
-
-      const halfCutTable = await makeCuttingPlane(structure.data, "x", sliderEl.valueAsNumber);
-    });
+    //sliderEl.addEventListener("input", async (_) => {
+    //  console.log(`slider value changed: ${sliderEl.value}`);
+    //
+    //  const halfCutTable = await makeCuttingPlane(structure.data, "x", sliderEl.valueAsNumber);
+    //});
   }
 
   //~ add canvas to the page

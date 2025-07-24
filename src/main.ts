@@ -2,6 +2,7 @@ export {
   addStructureToScene,
   display,
   initScene,
+  updateScene,
 } from "./chromatin.ts";
 export type {
   ChromatinScene,

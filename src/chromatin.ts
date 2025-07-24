@@ -104,6 +104,14 @@ export function display(
   return [renderer, elementToReturn];
 }
 
+export function updateScene(
+  renderer: ChromatinBasicRenderer,
+  newScene: ChromatinScene,
+) {
+  renderer.clearScene();
+  buildStructures(newScene.structures, renderer);
+}
+
 function buildStructures(
   structures: DisplayableStructure[],
   renderer: ChromatinBasicRenderer,
@@ -284,7 +292,7 @@ function computeSegments(
   const chr = chromosomeColumn;
   const idx = indicesColumn;
 
-  for (let cIndex = 0; cIndex < rowsNum; ) {
+  for (let cIndex = 0; cIndex < rowsNum;) {
     const start = cIndex;
 
     while (
