@@ -108,8 +108,11 @@ export function updateScene(
   renderer: ChromatinBasicRenderer,
   newScene: ChromatinScene,
 ) {
+  renderer.endDrawing();
   renderer.clearScene();
   buildStructures(newScene.structures, renderer);
+  console.log(`Rebuilt the scene: # of objects: ${renderer.scene.children.length}`);
+  renderer.startDrawing();
 }
 
 function buildStructures(
@@ -292,7 +295,7 @@ function computeSegments(
   const chr = chromosomeColumn;
   const idx = indicesColumn;
 
-  for (let cIndex = 0; cIndex < rowsNum; ) {
+  for (let cIndex = 0; cIndex < rowsNum;) {
     const start = cIndex;
 
     while (
