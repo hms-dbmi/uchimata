@@ -9,7 +9,7 @@ import {
   initScene,
   loadFromURL,
   makeCuttingPlane,
-  sphereSelect,
+  //sphereSelect,
   updateScene,
 } from "../../src/main.ts";
 
@@ -30,27 +30,12 @@ const setupWholeGenomeExampleWithFilters = async (): Promise<
     return [chromatinScene, null];
   }
 
-  const newTable = await sphereSelect(structure.data, 0.1, 0, 0, 0.1);
+  //const newTable = await sphereSelect(structure.data, 0.1, 0, 0, 0.1);
   const halfCutTable = await makeCuttingPlane(structure.data, "x", 0);
-
-  const subsetStructure = {
-    ...structure,
-    data: newTable,
-  };
-
-  const vc: ViewConfig = {
-    color: {
-      field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
-      colorScale: "set1",
-    },
-    links: true,
-    //linksScale: 0.5,
-    linksScale: 1.0,
-  };
 
   chromatinScene = addStructureToScene(
     chromatinScene,
-    { ...structure, data: halfCutTable },
+    { data: halfCutTable },
     {
       color: "gainsboro",
       links: true,
@@ -58,7 +43,14 @@ const setupWholeGenomeExampleWithFilters = async (): Promise<
       linksScale: 1.0,
     },
   );
-  chromatinScene = addStructureToScene(chromatinScene, subsetStructure, vc);
+  chromatinScene = addStructureToScene(chromatinScene, structure, {
+    color: {
+      field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
+      colorScale: "set1",
+    },
+    links: true,
+    linksScale: 1.0,
+  });
 
   return [chromatinScene, structure];
 };
@@ -87,16 +79,25 @@ setupWholeGenomeExampleWithFilters().then(([scene, structure]) => {
           sliderEl.valueAsNumber,
         );
         let newScene = initScene();
-        newScene = addStructureToScene(
-          newScene,
-          { data: halfCutTable },
-          {
-            color: "gainsboro",
-            links: true,
-            scale: 0.004,
-            linksScale: 1.0,
+
+        const wholeDataset = structure;
+        const wholeVC: ViewConfig = {
+          color: "gainsboro",
+          links: false,
+          scale: 0.002,
+          linksScale: 1.0,
+        };
+
+        const vc: ViewConfig = {
+          color: {
+            field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
+            colorScale: "set1",
           },
-        );
+          links: true,
+          linksScale: 1.0,
+        };
+        newScene = addStructureToScene(newScene, { data: halfCutTable }, vc);
+        newScene = addStructureToScene(newScene, wholeDataset, wholeVC);
         updateScene(renderer, newScene);
       }
 
