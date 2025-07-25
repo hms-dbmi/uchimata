@@ -138,10 +138,7 @@ function resolveScale(table: Table, vc: ViewConfig): number | number[] {
     scale = vc.scale;
   } else if (vc.scale.field) {
     const fieldName = vc.scale.field;
-    console.log(`using field ${fieldName} for scale`);
     const valuesColumn = table.getChild(fieldName)?.toArray();
-    console.log("values");
-    console.log(valuesColumn);
     if (valuesColumn) {
       scale = mapValuesToScale(valuesColumn, vc.scale);
     }
@@ -324,7 +321,7 @@ function computeSegments(
   const chr = chromosomeColumn;
   const idx = indicesColumn;
 
-  for (let cIndex = 0; cIndex < rowsNum; ) {
+  for (let cIndex = 0; cIndex < rowsNum;) {
     const start = cIndex;
 
     while (
