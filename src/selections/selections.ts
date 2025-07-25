@@ -10,6 +10,7 @@ export async function makeCuttingPlane(
   model: Table,
   axis: "x" | "y" | "z" = "x",
   cutAt = 0,
+  invert = false,
 ): Promise<Table> {
   if (!(await duckDB.getExistingTables()).includes("structure")) {
     const db = await duckDB.getDatabase();
@@ -17,7 +18,9 @@ export async function makeCuttingPlane(
     conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
   }
 
-  const query = `SELECT * FROM structure WHERE ${axis} < ${cutAt}`;
+  const query = (invert) ?
+    `SELECT * FROM structure WHERE ${axis} > ${cutAt}` :
+    `SELECT * FROM structure WHERE ${axis} < ${cutAt}`;
 
   return await duckDB.query(query);
 }
