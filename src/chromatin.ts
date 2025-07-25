@@ -108,13 +108,11 @@ export function updateScene(
   renderer: ChromatinBasicRenderer,
   newScene: ChromatinScene,
 ) {
-  renderer.endDrawing();
   renderer.clearScene();
   buildStructures(newScene.structures, renderer);
   console.log(
     `Rebuilt the scene: # of objects: ${renderer.scene.children.length}`,
   );
-  renderer.startDrawing();
 }
 
 function buildStructures(

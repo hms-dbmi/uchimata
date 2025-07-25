@@ -25,6 +25,8 @@ import type { DrawableMarkSegment } from "./renderer-types";
  */
 export class ChromatinBasicRenderer {
   markSegments: DrawableMarkSegment[] = [];
+  //objectsToDispose: THREE.Object3D[] = []; // objects that need to be disposed of when clearing the scene
+  objectsToDispose: Array<THREE.BufferGeometry | THREE.InstancedMesh | THREE.MeshBasicMaterial> = []; // objects that need to be disposed of when clearing the scene
 
   //~ threejs stuff
   renderer: THREE.WebGLRenderer;
@@ -159,6 +161,14 @@ export class ChromatinBasicRenderer {
   clearScene() {
     this.scene.clear();
     this.markSegments = [];
+    for (const obj of this.objectsToDispose) {
+      obj.dispose();
+    }
+    this.objectsToDispose = [];
+    for (const m of this.meshes) {
+      m.dispose();
+    }
+    this.meshes = [];
   }
 
   /**
@@ -246,6 +256,13 @@ export class ChromatinBasicRenderer {
     this.scene.add(meshInstcedSpheres);
     this.meshes.push(meshInstcedSpheres);
 
+    //~ save stuff for later disposal
+    if (g) {
+      this.objectsToDispose.push(g);
+    }
+    this.objectsToDispose.push(meshInstcedSpheres);
+    this.objectsToDispose.push(m);
+
     if (makeLinks) {
       const markSize = segment.attributes.size;
       const tubeScalingFactor = segment.attributes.linksScale;
@@ -319,6 +336,11 @@ export class ChromatinBasicRenderer {
       meshInstcedTubes.setColorAt(i, colorObj);
     }
     this.scene.add(meshInstcedTubes);
+
+    // for disposal
+    this.objectsToDispose.push(tubeGeometry);
+    this.objectsToDispose.push(meshInstcedTubes);
+    this.objectsToDispose.push(material);
   }
 
   updateColor(meshIndex: number, color: ChromaColor | ChromaColor[]) {
