@@ -18,9 +18,9 @@ export async function makeCuttingPlane(
     conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
   }
 
-  const query = (invert) ?
-    `SELECT * FROM structure WHERE ${axis} > ${cutAt}` :
-    `SELECT * FROM structure WHERE ${axis} < ${cutAt}`;
+  const query = invert
+    ? `SELECT * FROM structure WHERE ${axis} > ${cutAt}`
+    : `SELECT * FROM structure WHERE ${axis} < ${cutAt}`;
 
   return await duckDB.query(query);
 }

@@ -171,7 +171,7 @@ function mapValuesToScale(
       valuesArray.push(values[i] as number | string);
     }
   }
-  
+
   if (valuesArray.every((d): d is number => typeof d === "number")) {
     //~ quantitative size scale
     const min = vcScaleField.min ?? 0; // default range <0, 1> seems reasonable...
@@ -324,7 +324,7 @@ function computeSegments(
   const chr = chromosomeColumn;
   const idx = indicesColumn;
 
-  for (let cIndex = 0; cIndex < rowsNum;) {
+  for (let cIndex = 0; cIndex < rowsNum; ) {
     const start = cIndex;
 
     while (

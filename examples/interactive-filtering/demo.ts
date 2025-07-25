@@ -1,7 +1,4 @@
-import type {
-  ChromatinStructure,
-  ViewConfig,
-} from "../../src/chromatin-types.ts";
+import type { ChromatinStructure } from "../../src/chromatin-types.ts";
 import {
   addStructureToScene,
   type ChromatinScene,
@@ -91,7 +88,9 @@ setupWholeGenomeExampleWithFilters().then(([scene, structure]) => {
 
         let newScene = initScene();
 
-        newScene = addStructureToScene(newScene, { data: otherhalfCutTable },
+        newScene = addStructureToScene(
+          newScene,
+          { data: otherhalfCutTable },
           {
             color: "gainsboro",
             scale: {
@@ -102,15 +101,20 @@ setupWholeGenomeExampleWithFilters().then(([scene, structure]) => {
               scaleMin: 0.0005,
               scaleMax: 0.005,
             },
-          });
-        newScene = addStructureToScene(newScene, { data: halfCutTable }, {
-          //color: "red",
-          color: {
-            field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
-            colorScale: "set1",
           },
-          links: true,
-        });
+        );
+        newScene = addStructureToScene(
+          newScene,
+          { data: halfCutTable },
+          {
+            //color: "red",
+            color: {
+              field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
+              colorScale: "set1",
+            },
+            links: true,
+          },
+        );
         updateScene(renderer, newScene);
       }
     });
