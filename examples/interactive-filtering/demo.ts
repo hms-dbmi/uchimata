@@ -9,7 +9,7 @@ import {
   initScene,
   loadFromURL,
   makeCuttingPlane,
-  selectChromosome,
+  //selectChromosome,
   //sphereSelect,
   updateScene,
 } from "../../src/main.ts";
@@ -73,80 +73,41 @@ setupWholeGenomeExampleWithFilters().then(([scene, structure]) => {
     sliderEl.addEventListener("input", async (_) => {
       console.log(`slider value changed: ${sliderEl.value}`);
 
+      const makeCutAt = sliderEl.valueAsNumber;
       if (structure) {
-        //const halfCutTable = await makeCuttingPlane(
-        //  structure.data,
-        //  "x",
-        //  sliderEl.valueAsNumber,
-        //);
+        const halfCutTable = await makeCuttingPlane(
+          structure.data,
+          "x",
+          makeCutAt,
+          true,
+        );
+
+        const otherhalfCutTable = await makeCuttingPlane(
+          structure.data,
+          "x",
+          makeCutAt,
+        );
+
         let newScene = initScene();
 
-        //const wholeDataset = structure;
-        //const wholeVC: ViewConfig = {
-        //  color: "gainsboro",
-        //  links: false,
-        //  //scale: 0.002,
-        //  scale: {
-        //    field: "x",
-        //    scaleMin: 0.001,
-        //    scaleMax: 0.002,
-        //    min: 0.0,
-        //    max: 1.0,
-        //  },
-        //  linksScale: 1.0,
-        //};
-
-        const chromDataset = await selectChromosome(structure.data, "chr r");
-        const chromVC: ViewConfig = {
-          color: "gainsboro",
-          links: false,
-          //scale: 0.002,
-          scale: {
-            field: "x",
-            scaleMin: 0.001,
-            scaleMax: 0.002,
-            min: -1.0,
-            max: 1.0,
-          },
-          linksScale: 1.0,
-        };
-
-        //const vc: ViewConfig = {
-        //  color: {
-        //    field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
-        //    colorScale: "set1",
-        //  },
-        //  //links: true,
-        //  links: false,
-        //  linksScale: 1.0,
-        //};
-        //newScene = addStructureToScene(newScene, { data: halfCutTable }, vc);
-        //newScene = addStructureToScene(newScene, wholeDataset, wholeVC);
-        newScene = addStructureToScene(
-          newScene,
-          { data: chromDataset },
-          chromVC,
-        );
+        newScene = addStructureToScene(newScene, { data: otherhalfCutTable },
+          {
+            color: "gainsboro",
+            scale: {
+              field: "x",
+              min: -0.3 + makeCutAt,
+              //max: 0.5,
+              max: makeCutAt,
+              scaleMin: 0.0005,
+              scaleMax: 0.005,
+            },
+          });
+        newScene = addStructureToScene(newScene, { data: halfCutTable }, {
+          color: "red",
+          links: true,
+        });
         updateScene(renderer, newScene);
       }
-
-      //if (structure) {
-      //  const halfCutTable = await makeCuttingPlane(structure.data, "x", sliderEl.valueAsNumber);
-      //
-      //  let newScene = initScene();
-      //  newScene = addStructureToScene(newScene, { data: halfCutTable },
-      //    {
-      //      color: "gainsboro",
-      //      links: true,
-      //      scale: 0.004,
-      //      linksScale: 1.0,
-      //    },
-      //  );
-      //  const _ = display(newScene, {
-      //    alwaysRedraw: false,
-      //    withHUD: false,
-      //  }, canvas as HTMLCanvasElement);
-      //}
     });
   }
 
