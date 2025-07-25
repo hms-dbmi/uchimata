@@ -139,10 +139,12 @@ function resolveScale(table: Table, vc: ViewConfig): number | number[] {
   } else if (vc.scale.field) {
     const fieldName = vc.scale.field;
     console.log(`using field ${fieldName} for scale`);
-    const valuesColumn = table.getChild(fieldName)?.toArray() as number[];
+    const valuesColumn = table.getChild(fieldName)?.toArray();
     console.log("values");
     console.log(valuesColumn);
-    scale = mapValuesToScale(valuesColumn, vc.scale);
+    if (valuesColumn) {
+      scale = mapValuesToScale(valuesColumn, vc.scale);
+    }
   } else {
     //~ scale is an array of numbers
     const values = vc.scale.values;
@@ -155,16 +157,28 @@ function resolveScale(table: Table, vc: ViewConfig): number | number[] {
 }
 
 function mapValuesToScale(
-  values: number[] | string[],
+  values: ArrayLike<number> | ArrayLike<string> | number[] | string[],
   vcScaleField: AssociatedValuesScale,
 ): number[] {
-  if (values.every((d) => typeof d === "number")) {
+  // Convert to array only when we need array methods, handling union types properly
+  let valuesArray: (number | string)[];
+  if (Array.isArray(values)) {
+    valuesArray = values;
+  } else {
+    // For ArrayLike, we need to check what type it actually contains
+    valuesArray = [];
+    for (let i = 0; i < values.length; i++) {
+      valuesArray.push(values[i] as number | string);
+    }
+  }
+  
+  if (valuesArray.every((d): d is number => typeof d === "number")) {
     //~ quantitative size scale
     const min = vcScaleField.min ?? 0; // default range <0, 1> seems reasonable...
     const max = vcScaleField.max ?? 1;
     const scaleMin = vcScaleField.scaleMin || 0.001; // TODO: define default somewhere more explicit
     const scaleMax = vcScaleField.scaleMax || 0.05; // TODO: define default somewhere more explicit
-    return values.map((v) => valMap(v, min, max, scaleMin, scaleMax));
+    return valuesArray.map((v) => valMap(v, min, max, scaleMin, scaleMax));
   }
   //~ string[] => nominal size scale
   // TODO:
@@ -310,7 +324,7 @@ function computeSegments(
   const chr = chromosomeColumn;
   const idx = indicesColumn;
 
-  for (let cIndex = 0; cIndex < rowsNum; ) {
+  for (let cIndex = 0; cIndex < rowsNum;) {
     const start = cIndex;
 
     while (
