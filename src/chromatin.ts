@@ -321,7 +321,7 @@ function computeSegments(
   const chr = chromosomeColumn;
   const idx = indicesColumn;
 
-  for (let cIndex = 0; cIndex < rowsNum;) {
+  for (let cIndex = 0; cIndex < rowsNum; ) {
     const start = cIndex;
 
     while (
