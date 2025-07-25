@@ -104,7 +104,10 @@ export const valMap = (
   y1: number,
   x2: number,
   y2: number,
-) => ((value - x1) * (y2 - x2)) / (y1 - x1) + x2;
+) => {
+  const clampedValue = Math.max(x1, Math.min(y1, value));
+  return ((clampedValue - x1) * (y2 - x2)) / (y1 - x1) + x2;
+};
 
 /*
  * Utility function for converting genomic coordinate (i.e., nucleobase position) to bin index, given certain resolution
