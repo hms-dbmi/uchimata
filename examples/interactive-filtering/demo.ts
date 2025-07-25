@@ -59,6 +59,7 @@ const setupWholeGenomeExampleWithFilters = async (): Promise<
 setupWholeGenomeExampleWithFilters().then(([scene, structure]) => {
   const [renderer, canvas] = display(scene, {
     alwaysRedraw: false,
+    //alwaysRedraw: true,
     withHUD: false,
   });
 
@@ -95,7 +96,7 @@ setupWholeGenomeExampleWithFilters().then(([scene, structure]) => {
             color: "gainsboro",
             scale: {
               field: "x",
-              min: -0.3 + makeCutAt,
+              min: -0.1 + makeCutAt,
               //max: 0.5,
               max: makeCutAt,
               scaleMin: 0.0005,
@@ -103,7 +104,11 @@ setupWholeGenomeExampleWithFilters().then(([scene, structure]) => {
             },
           });
         newScene = addStructureToScene(newScene, { data: halfCutTable }, {
-          color: "red",
+          //color: "red",
+          color: {
+            field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
+            colorScale: "set1",
+          },
           links: true,
         });
         updateScene(renderer, newScene);
