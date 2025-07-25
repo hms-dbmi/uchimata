@@ -154,8 +154,10 @@ function resolveScale(table: Table, vc: ViewConfig): number | number[] {
   return scale;
 }
 
-function mapValuesToScale(values: number[] | string[], vcScaleField: AssociatedValuesScale): number[] {
-
+function mapValuesToScale(
+  values: number[] | string[],
+  vcScaleField: AssociatedValuesScale,
+): number[] {
   if (values.every((d) => typeof d === "number")) {
     //~ quantitative size scale
     const min = vcScaleField.min ?? 0; // default range <0, 1> seems reasonable...
@@ -163,12 +165,11 @@ function mapValuesToScale(values: number[] | string[], vcScaleField: AssociatedV
     const scaleMin = vcScaleField.scaleMin || 0.001; // TODO: define default somewhere more explicit
     const scaleMax = vcScaleField.scaleMax || 0.05; // TODO: define default somewhere more explicit
     return values.map((v) => valMap(v, min, max, scaleMin, scaleMax));
-  } else {
-    //~ string[] => nominal size scale
-    // TODO:
-    console.warn("TODO: not implemented (nominal size scale for chunk)");
-    return [];
   }
+  //~ string[] => nominal size scale
+  // TODO:
+  console.warn("TODO: not implemented (nominal size scale for chunk)");
+  return [];
 }
 
 function mapValuesToColors(

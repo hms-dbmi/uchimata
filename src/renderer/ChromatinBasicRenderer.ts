@@ -26,7 +26,9 @@ import type { DrawableMarkSegment } from "./renderer-types";
 export class ChromatinBasicRenderer {
   markSegments: DrawableMarkSegment[] = [];
   //objectsToDispose: THREE.Object3D[] = []; // objects that need to be disposed of when clearing the scene
-  objectsToDispose: Array<THREE.BufferGeometry | THREE.InstancedMesh | THREE.MeshBasicMaterial> = []; // objects that need to be disposed of when clearing the scene
+  objectsToDispose: Array<
+    THREE.BufferGeometry | THREE.InstancedMesh | THREE.MeshBasicMaterial
+  > = []; // objects that need to be disposed of when clearing the scene
 
   //~ threejs stuff
   renderer: THREE.WebGLRenderer;

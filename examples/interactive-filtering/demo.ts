@@ -74,27 +74,27 @@ setupWholeGenomeExampleWithFilters().then(([scene, structure]) => {
       console.log(`slider value changed: ${sliderEl.value}`);
 
       if (structure) {
-        const halfCutTable = await makeCuttingPlane(
-          structure.data,
-          "x",
-          sliderEl.valueAsNumber,
-        );
+        //const halfCutTable = await makeCuttingPlane(
+        //  structure.data,
+        //  "x",
+        //  sliderEl.valueAsNumber,
+        //);
         let newScene = initScene();
 
-        const wholeDataset = structure;
-        const wholeVC: ViewConfig = {
-          color: "gainsboro",
-          links: false,
-          //scale: 0.002,
-          scale: {
-            field: "x",
-            scaleMin: 0.001,
-            scaleMax: 0.002,
-            min: 0.0,
-            max: 1.0,
-          },
-          linksScale: 1.0,
-        };
+        //const wholeDataset = structure;
+        //const wholeVC: ViewConfig = {
+        //  color: "gainsboro",
+        //  links: false,
+        //  //scale: 0.002,
+        //  scale: {
+        //    field: "x",
+        //    scaleMin: 0.001,
+        //    scaleMax: 0.002,
+        //    min: 0.0,
+        //    max: 1.0,
+        //  },
+        //  linksScale: 1.0,
+        //};
 
         const chromDataset = await selectChromosome(structure.data, "chr r");
         const chromVC: ViewConfig = {
@@ -111,18 +111,22 @@ setupWholeGenomeExampleWithFilters().then(([scene, structure]) => {
           linksScale: 1.0,
         };
 
-        const vc: ViewConfig = {
-          color: {
-            field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
-            colorScale: "set1",
-          },
-          //links: true,
-          links: false,
-          linksScale: 1.0,
-        };
+        //const vc: ViewConfig = {
+        //  color: {
+        //    field: "chr", //~ uses the 'chr' column in the Arrow table that defines the structure
+        //    colorScale: "set1",
+        //  },
+        //  //links: true,
+        //  links: false,
+        //  linksScale: 1.0,
+        //};
         //newScene = addStructureToScene(newScene, { data: halfCutTable }, vc);
         //newScene = addStructureToScene(newScene, wholeDataset, wholeVC);
-        newScene = addStructureToScene(newScene, { data: chromDataset }, chromVC);
+        newScene = addStructureToScene(
+          newScene,
+          { data: chromDataset },
+          chromVC,
+        );
         updateScene(renderer, newScene);
       }
 
