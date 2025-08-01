@@ -1,9 +1,5 @@
 import type { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 import * as duckdb from "@duckdb/duckdb-wasm";
-import eh_worker from "@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url";
-import mvp_worker from "@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url";
-import duckdb_wasm_eh from "@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url";
-import duckdb_wasm from "@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url";
 
 export class DuckDBSingleton {
   db: AsyncDuckDB | null;
@@ -22,21 +18,15 @@ export class DuckDBSingleton {
     this.initPromise = (async () => {
       if (this.db) return this.db;
 
-      const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
-        mvp: {
-          mainModule: duckdb_wasm,
-          mainWorker: mvp_worker,
-        },
-        eh: {
-          mainModule: duckdb_wasm_eh,
-          mainWorker: eh_worker,
-        },
-      };
-      const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
+      const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+      const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+      const worker_url = URL.createObjectURL(
+        new Blob([`importScripts("${bundle.mainWorker!}");`], { type: 'text/javascript' })
+      );
       if (!bundle.mainWorker) {
         throw new Error("DuckDB bundle does not contain a main worker");
       }
-      const worker = new Worker(bundle.mainWorker);
+      const worker = new Worker(worker_url);
       const logger = new duckdb.ConsoleLogger();
 
       this.db = new duckdb.AsyncDuckDB(logger, worker);
