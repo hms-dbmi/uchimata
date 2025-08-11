@@ -148,6 +148,10 @@ function resolveScale(table: Table, vc: ViewConfig): number | number[] {
     if (!values) {
       return defaultScale; //~ return default scale
     }
+    assert(
+      values.length >= table.numRows,
+      "array length of \`scale.values\` in view config must be equal or larger than the number of bins",
+    );
     scale = mapValuesToScale(values, vc.scale);
   }
   return scale;
@@ -255,6 +259,10 @@ function resolveColor(
     if (!vc.color.values) {
       return defaultColor; //~ return default color
     }
+    assert(
+      vc.color.values.length >= table.numRows,
+      "array length of \`color.values\` in view config must be equal or larger than the number of bins",
+    );
     color = mapValuesToColors(vc.color.values, vc.color);
   }
   return color;
