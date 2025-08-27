@@ -1,0 +1,65 @@
+<!doctype html>
+<notebook theme="air">
+  <title>Getting started</title>
+  <script id="1" type="text/markdown">
+    # Getting started
+  </script>
+  <script id="7" type="text/markdown">
+    ## Import the library
+    uchimata is hosted on NPM, and can be installed with typical dependency management tools (npm, yarn, pnpm) just like any other Javascript library.
+
+    For use in Observable notebooks, we can import using:
+  </script>
+  <script id="2" type="module" pinned="">
+    import * as uchi from "https://esm.sh/uchimata@0.3.1";
+  </script>
+  <script id="14" type="text/markdown">
+    ## Load data
+  </script>
+  <script id="16" type="text/markdown">
+    We designed the library to accept genome structures stored as Apache Arrow tables. There are two options: `loadFromURL` and `load`
+  </script>
+  <script id="4" type="module" pinned="">
+    const urlStevens = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_5.arrow";
+  </script>
+  <script id="5" type="module" pinned="">
+    const model = await uchi.loadFromURL(urlStevens, {
+      center: true,
+      normalize: true,
+    });
+  </script>
+  <script id="17" type="text/markdown">
+    The load functions also accept an options object where we can specify whether the coordinates should be normalized and centered.
+  </script>
+  <script id="11" type="module" pinned="">
+    display(model)
+  </script>
+  <script id="18" type="text/markdown">
+    ## Define the visual encodings
+    At its core, 3D genome structure data only specifies discrete positions in space, and it is up to us how will these points be represented. This is what a `viewConfig` object does.
+  </script>
+  <script id="19" type="module" pinned="">
+    const viewConfig = ({
+      scale: 0.005,
+      color: "lightgreen",
+      links: true,
+    });
+  </script>
+  <script id="20" type="text/markdown">
+    ## Render the data
+    To display the data, we bind the loaded model with a view config and place both in a ’scene’.
+  </script>
+  <script id="22" type="module" pinned="">
+    //~ create a scene
+    let chromatinScene = uchi.initScene();
+    chromatinScene = uchi.addStructureToScene(chromatinScene, model, viewConfig);
+
+    const [renderer, canvas] = uchi.display(chromatinScene, { alwaysRedraw: false});
+
+    //~ ObservableHQ mechanism for clean-up after cell re-render
+    invalidation.then(() => renderer.endDrawing());
+  </script>
+  <script id="25" type="module" pinned="">
+    display(renderer.getCanvasElement());
+  </script>
+</notebook>

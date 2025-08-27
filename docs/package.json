@@ -1,0 +1,16 @@
+{
+  "name": "uchimata-examples",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@fontsource/inter": "^5.2.6",
+    "@fontsource/source-serif-4": "^5.2.8",
+    "@fontsource/spline-sans-mono": "^5.2.6",
+    "@observablehq/notebook-kit": "^1.0.1"
+  },
+  "scripts": {
+    "docs:preview": "notebooks preview --root docs",
+    "docs:build": "notebooks build --root docs -- docs/*.html"
+  }
+}
