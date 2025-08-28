@@ -1,0 +1,56 @@
+<!doctype html>
+<notebook theme="air">
+  <title>Mapping data to color and scale</title>
+  <script id="1" type="text/markdown">
+    # Mapping data to color and scale
+  </script>
+  <script id="2" type="module" pinned="">
+    import * as uchi from "npm:uchimata";
+  </script>
+  <script id="3" type="module" pinned="">
+    const viewConfig = ({
+      scale: {
+        values: sineValues,
+        min: -100,
+        max: 100,
+        scaleMin: 0.01,
+        scaleMax: 0.03,
+      },
+      color: {
+        values: sineValues,
+        min: 0,
+        max: 100,
+        colorScale: "viridis",
+      },
+      links: false,
+      mark: "sphere",
+    });
+
+    //~ create a scene
+    let chromatinScene = uchi.initScene();
+    chromatinScene = uchi.addStructureToScene(chromatinScene, testChunk, viewConfig);
+
+    const [renderer, canvas] = uchi.display(chromatinScene, { alwaysRedraw: false});
+
+    //~ ObservableHQ mechanism for clean-up after cell re-render
+    invalidation.then(() => renderer.endDrawing());
+
+    display(renderer.getCanvasElement());
+  </script>
+  <script id="4" type="module" pinned="">
+    const testChunkURL = "https://raw.githubusercontent.com/dvdkouril/chromospace-sample-data/main/dros.3.arrow";
+  </script>
+  <script id="5" type="module" pinned="">
+    const testChunk = await uchi.loadFromURL(testChunkURL, {
+      center: true,
+      normalize: true,
+    });
+  </script>
+  <script id="6" type="module" pinned="">
+    const num = testChunk.data.numRows;
+    const sineValues = sineWave(100, 0.2, num);
+  </script>
+  <script id="7" type="module" pinned="">
+    const sineWave = (amplitude, frequency, length) => Array.from({ length }, (_, i) => amplitude * Math.sin(frequency * i));
+  </script>
+</notebook>
