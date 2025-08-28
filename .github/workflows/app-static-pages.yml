@@ -3,6 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: 'main'
+  workflow_dispatch:
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
   build_site:
@@ -23,30 +28,25 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
-      - name: Install uchimata dependencies
-        run: pnpm install
 
-      - name: Build uchimata lib
-        run: pnpm build
-
-      - name: Install dependencies
+      - name: Install dependencies of the `docs` site
         run: pnpm install
-        working-directory: ./app
+        working-directory: ./docs
 
       - name: build
         env:
           BASE_PATH: '/${{ github.event.repository.name }}'
         run: |
-          pnpm build
-        working-directory: ./app
+          pnpm docs:build
+        working-directory: ./docs
 
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          # this should match the `pages` option in your adapter-static options
-          path: 'app/build/'
+          # This is where notebook kit outputs the static site
+          path: docs/.observable/dist
 
   deploy:
     needs: build_site

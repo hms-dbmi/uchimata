@@ -1,0 +1,45 @@
+<!doctype html>
+<notebook theme="air">
+  <title>Selections</title>
+  <script id="1" type="text/markdown">
+    # Selections
+  </script>
+  <script id="2" type="module" pinned="">
+    import * as uchi from "npm:uchimata";
+  </script>
+  <script id="5" type="module" pinned="">
+    const model = await uchi.loadFromURL(urlStevens, {
+      center: true,
+      normalize: true,
+    });
+  </script>
+  <script id="6" type="module" pinned="">
+    const selectionTable = await uchi.selectChromosome(model.data, "chr a");
+    const subModel = {
+      ...model,
+      name: "Selected chromosome from model",
+      data: selectionTable,
+    };
+  </script>
+  <script id="3" type="module" pinned="">
+    const viewConfig = ({
+      scale: 0.005,
+      color: "crimson",
+      links: true,
+    });
+
+    //~ create a scene
+    let chromatinScene = uchi.initScene();
+    chromatinScene = uchi.addStructureToScene(chromatinScene, subModel, viewConfig);
+
+    const [renderer, canvas] = uchi.display(chromatinScene, { alwaysRedraw: false});
+
+    //~ ObservableHQ mechanism for clean-up after cell re-render
+    invalidation.then(() => renderer.endDrawing());
+
+    display(renderer.getCanvasElement());
+  </script>
+  <script id="4" type="module" pinned="">
+    const urlStevens = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_5.arrow";
+  </script>
+</notebook>

@@ -1,0 +1,88 @@
+<!doctype html>
+<notebook theme="air">
+  <title>Chromosomes explorer</title>
+  <script id="1" type="text/markdown">
+    # Chromosomes explorer
+  </script>
+  <script id="2" type="module" pinned="">
+    import * as uchi from "npm:uchimata";
+  </script>
+  <script id="7" type="application/vnd.observable.javascript">
+    viewof selectedChromosome = Inputs.select(chromosomes, {value: "whole", label: "Selected chromosome"})
+  </script>
+  <script id="16" type="module" pinned="">
+    display(renderer.getCanvasElement());
+  </script>
+  <script id="9" type="module" pinned="">
+    const defaultViewConfig = ({
+      scale: 0.005,
+      color: {
+        field: "chr",
+        colorScale: "set2",
+      },
+      links: true,
+      linksScale: 0.5,
+    });
+
+    const selectedViewConfig = {
+      scale: 0.02,
+      mark: "box",
+      color: "orange",
+      links: false,
+    };
+
+    const unselectedViewConfig = {
+      scale: 0.005,
+      color: "#a3a3a3",
+      links: false,
+    };
+  </script>
+  <script id="3" type="module" pinned="">
+    //~ create a scene
+    let chromatinScene = uchi.initScene();
+
+    if (selectedChromosome === "whole") {
+      chromatinScene = uchi.addStructureToScene(chromatinScene, model, defaultViewConfig);
+    } else {
+      const selectionTable = await uchi.selectChromosome(model.data, selectedChromosome);
+      const subModel = {
+        ...model,
+        data: selectionTable,
+      };
+      chromatinScene = uchi.addStructureToScene(chromatinScene, subModel, selectedViewConfig);
+      chromatinScene = uchi.addStructureToScene(chromatinScene, model, unselectedViewConfig);
+    }
+
+    const [renderer, canvas] = uchi.display(chromatinScene, { alwaysRedraw: false});
+
+    //~ ObservableHQ mechanism for clean-up after cell re-render
+    invalidation.then(() => renderer.endDrawing());
+  </script>
+  <script id="18" type="text/markdown">
+    ## Data loading
+  </script>
+  <script id="4" type="module" pinned="">
+    const urlStevens = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_5.arrow";
+
+    const model = await uchi.loadFromURL(urlStevens, {
+      center: true,
+      normalize: true,
+    });
+  </script>
+  <script id="8" type="module" pinned="">
+    const chromosomes = getUniqueValuesOfColumn(model.data, "chr");
+    display(chromosomes);
+  </script>
+  <script id="17" type="text/markdown">
+    ## Utilities
+  </script>
+  <script id="11" type="module" pinned="">
+    function getUniqueValuesOfColumn(table, c = "chr") {
+      const column = table.getChild(c);
+      const values = [...column];
+      const uniqueValues = [...new Set(values)];
+      uniqueValues.push("whole");
+      return uniqueValues;
+    }
+  </script>
+</notebook>
