@@ -46,6 +46,7 @@ jobs:
         run: |
           pwd
           ls -la
+          ls -la docs
 
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
