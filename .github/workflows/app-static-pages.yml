@@ -42,17 +42,11 @@ jobs:
           pnpm docs:build
         working-directory: ./docs
 
-      - name: debug list files and pwd
-        run: |
-          pwd
-          ls -la
-          ls -la docs
-
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
           # This is where notebook kit outputs the static site
-          path: docs/.observable/dist
+          path: docs/docs/.observable/dist
 
   deploy:
     needs: build_site
