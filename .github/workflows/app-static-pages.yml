@@ -42,6 +42,11 @@ jobs:
           pnpm docs:build
         working-directory: ./docs
 
+      - name: debug list files and pwd
+        run: |
+          pwd
+          ls -la
+
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
