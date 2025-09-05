@@ -188,7 +188,7 @@ function mapValuesToScale(
 }
 
 function mapValuesToColors(
-  values: number[] | string[] | Float64Array,
+  values: number[] | string[] | Float64Array | BigInt64Array,
   vcColorField: AssociatedValuesColor,
 ): ChromaColor[] {
   const defaultColor = chroma("red"); //~ default color is red
@@ -199,46 +199,59 @@ function mapValuesToColors(
     vcColorField.colorScale;
   }
 
-  if (values instanceof Float64Array) {
-    values = Array.from(values);
-  }
+  if (Array.isArray(values) && values.every((d) => typeof d === "string")) {
+    //~ values: string[] => nominal color scale
 
-  if (values.every((d) => typeof d === "number")) {
-    const min = vcColorField.min ?? 0; // default range <0, 1> seems reasonable...
-    const max = vcColorField.max ?? 1;
+    // one pass to find how many unique values there are in the column
+    const uniqueValues = new Set<string>(values);
+    const numUniqueValues = uniqueValues.size;
 
-    //~ DK: For some reason, typescript complains if you don't narrow the type, even though the call is exactly the same.
-    //~ This doesn't work: `const colorScale = chroma.scale(vc.color.colorScale)`
-    const colorScale =
-      typeof vcColorField.colorScale === "string"
-        ? chroma.scale(vcColorField.colorScale)
-        : chroma.scale(vcColorField.colorScale);
-    const scaledScale = colorScale.domain([min, max]);
-    const colorValues = values.map((v) => scaledScale(v));
-    return colorValues;
-  }
-  //~ values: string[] => nominal color scale
+    const mapColorsValues = new Map<string, ChromaColor>();
 
-  // one pass to find how many unique values there are in the column
-  const uniqueValues = new Set<string>(values);
-  const numUniqueValues = uniqueValues.size;
-
-  const mapColorsValues = new Map<string, ChromaColor>();
-
-  let colors: string[] = [];
-  if (typeof vcColorField.colorScale === "string") {
-    colors = chroma.scale(vcColorField.colorScale).colors(numUniqueValues);
-  } else {
-    colors = vcColorField.colorScale;
-  }
-  for (const [i, v] of [...uniqueValues].entries()) {
-    const newColor = colors[i];
-    if (!mapColorsValues.has(v)) {
-      mapColorsValues.set(v, chroma(newColor));
+    let colors: string[] = [];
+    if (typeof vcColorField.colorScale === "string") {
+      colors = chroma.scale(vcColorField.colorScale).colors(numUniqueValues);
+    } else {
+      colors = vcColorField.colorScale;
     }
+    for (const [i, v] of [...uniqueValues].entries()) {
+      const newColor = colors[i];
+      if (!mapColorsValues.has(v)) {
+        mapColorsValues.set(v, chroma(newColor));
+      }
+    }
+
+    return values.map((v) => mapColorsValues.get(v) || defaultColor);
+  }
+  console.log("mapValuesToColors");
+  console.log(values);
+
+  //~ prepare the color scale
+  const min = vcColorField.min ?? 0; // default range <0, 1> seems reasonable...
+  const max = vcColorField.max ?? 1;
+  //~ DK: For some reason, typescript complains if you don't narrow the type, even though the call is exactly the same.
+  //~ This doesn't work: `const colorScale = chroma.scale(vc.color.colorScale)`
+  const colorScale =
+    typeof vcColorField.colorScale === "string"
+      ? chroma.scale(vcColorField.colorScale)
+      : chroma.scale(vcColorField.colorScale);
+  const scaledScale = colorScale.domain([min, max]);
+  let colorValues: chroma.Color[] = [];
+
+  if (values instanceof Float64Array) {
+    // const test = Array.from(values, (val) => `value ${val}`);
+    colorValues = Array.from(values, (v) => scaledScale(v));
   }
 
-  return values.map((v) => mapColorsValues.get(v) || defaultColor);
+  if (values instanceof BigInt64Array) {
+    // const test = Array.from(values, (val) => `value ${val}`);
+    colorValues = Array.from(values, (v) => scaledScale(Number(v))); //~ is it sketchy to convert bigint to number?
+  }
+
+  if (Array.isArray(values) && values.every((d) => typeof d === "number")) {
+    colorValues = values.map((v) => scaledScale(v));
+  }
+  return colorValues;
 }
 
 function resolveColor(
