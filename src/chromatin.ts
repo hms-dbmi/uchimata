@@ -188,7 +188,7 @@ function mapValuesToScale(
 }
 
 function mapValuesToColors(
-  values: number[] | string[],
+  values: number[] | string[] | Float64Array,
   vcColorField: AssociatedValuesColor,
 ): ChromaColor[] {
   const defaultColor = chroma("red"); //~ default color is red
@@ -197,6 +197,10 @@ function mapValuesToColors(
   if (typeof vcColorField.colorScale === "string") {
     assert(isBrewerPaletteName(vcColorField.colorScale));
     vcColorField.colorScale;
+  }
+
+  if (values instanceof Float64Array) {
+    values = Array.from(values);
   }
 
   if (values.every((d) => typeof d === "number")) {
@@ -209,7 +213,9 @@ function mapValuesToColors(
       typeof vcColorField.colorScale === "string"
         ? chroma.scale(vcColorField.colorScale)
         : chroma.scale(vcColorField.colorScale);
-    return values.map((v) => colorScale.domain([min, max])(v));
+    const scaledScale = colorScale.domain([min, max]);
+    const colorValues = values.map((v) => scaledScale(v));
+    return colorValues;
   }
   //~ values: string[] => nominal color scale
 
@@ -252,7 +258,7 @@ function resolveColor(
   } else if (vc.color.field) {
     //~ color should be based on values in a column name in 'field'
     const fieldName = vc.color.field;
-    const valuesColumn = table.getChild(fieldName)?.toArray() as string[];
+    const valuesColumn = table.getChild(fieldName)?.toArray();
     color = mapValuesToColors(valuesColumn, vc.color);
   } else {
     //~ color should be based on values in the 'values' array
