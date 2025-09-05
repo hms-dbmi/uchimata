@@ -25,3 +25,6 @@ dist-ssr
 
 # files for testing (downloaded by vitest.setup.js)
 test-data/
+
+# Observable notebook for testing
+docs/docs/scratchpad.html
