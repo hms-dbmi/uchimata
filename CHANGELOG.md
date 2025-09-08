@@ -1,5 +1,11 @@
 # uchimata
 
+## 0.3.2
+
+### Patch Changes
+
+- bb2c22f: fix: mapping data to color using the `field` option with columns of type other than string
+
 ## 0.3.1
 
 ### Patch Changes
