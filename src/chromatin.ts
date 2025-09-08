@@ -196,7 +196,6 @@ function mapValuesToColors(
   //~ asserting that the colorScale supplied is a valid chroma scale
   if (typeof vcColorField.colorScale === "string") {
     assert(isBrewerPaletteName(vcColorField.colorScale));
-    vcColorField.colorScale;
   }
 
   if (Array.isArray(values) && values.every((d) => typeof d === "string")) {
@@ -223,8 +222,6 @@ function mapValuesToColors(
 
     return values.map((v) => mapColorsValues.get(v) || defaultColor);
   }
-  console.log("mapValuesToColors");
-  console.log(values);
 
   //~ prepare the color scale
   const min = vcColorField.min ?? 0; // default range <0, 1> seems reasonable...
@@ -239,12 +236,10 @@ function mapValuesToColors(
   let colorValues: chroma.Color[] = [];
 
   if (values instanceof Float64Array) {
-    // const test = Array.from(values, (val) => `value ${val}`);
     colorValues = Array.from(values, (v) => scaledScale(v));
   }
 
   if (values instanceof BigInt64Array) {
-    // const test = Array.from(values, (val) => `value ${val}`);
     colorValues = Array.from(values, (v) => scaledScale(Number(v))); //~ is it sketchy to convert bigint to number?
   }
 
