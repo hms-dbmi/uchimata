@@ -2,4 +2,4 @@
 "uchimata": patch
 ---
 
-fix: using field for color that is not string
+fix: mapping data to color using the `field` option with columns of type other than string
