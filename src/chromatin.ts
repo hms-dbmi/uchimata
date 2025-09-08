@@ -188,7 +188,7 @@ function mapValuesToScale(
 }
 
 function mapValuesToColors(
-  values: number[] | string[],
+  values: number[] | string[] | Float64Array | BigInt64Array,
   vcColorField: AssociatedValuesColor,
 ): ChromaColor[] {
   const defaultColor = chroma("red"); //~ default color is red
@@ -196,43 +196,57 @@ function mapValuesToColors(
   //~ asserting that the colorScale supplied is a valid chroma scale
   if (typeof vcColorField.colorScale === "string") {
     assert(isBrewerPaletteName(vcColorField.colorScale));
-    vcColorField.colorScale;
   }
 
-  if (values.every((d) => typeof d === "number")) {
-    const min = vcColorField.min ?? 0; // default range <0, 1> seems reasonable...
-    const max = vcColorField.max ?? 1;
+  if (Array.isArray(values) && values.every((d) => typeof d === "string")) {
+    //~ values: string[] => nominal color scale
 
-    //~ DK: For some reason, typescript complains if you don't narrow the type, even though the call is exactly the same.
-    //~ This doesn't work: `const colorScale = chroma.scale(vc.color.colorScale)`
-    const colorScale =
-      typeof vcColorField.colorScale === "string"
-        ? chroma.scale(vcColorField.colorScale)
-        : chroma.scale(vcColorField.colorScale);
-    return values.map((v) => colorScale.domain([min, max])(v));
-  }
-  //~ values: string[] => nominal color scale
+    // one pass to find how many unique values there are in the column
+    const uniqueValues = new Set<string>(values);
+    const numUniqueValues = uniqueValues.size;
 
-  // one pass to find how many unique values there are in the column
-  const uniqueValues = new Set<string>(values);
-  const numUniqueValues = uniqueValues.size;
+    const mapColorsValues = new Map<string, ChromaColor>();
 
-  const mapColorsValues = new Map<string, ChromaColor>();
-
-  let colors: string[] = [];
-  if (typeof vcColorField.colorScale === "string") {
-    colors = chroma.scale(vcColorField.colorScale).colors(numUniqueValues);
-  } else {
-    colors = vcColorField.colorScale;
-  }
-  for (const [i, v] of [...uniqueValues].entries()) {
-    const newColor = colors[i];
-    if (!mapColorsValues.has(v)) {
-      mapColorsValues.set(v, chroma(newColor));
+    let colors: string[] = [];
+    if (typeof vcColorField.colorScale === "string") {
+      colors = chroma.scale(vcColorField.colorScale).colors(numUniqueValues);
+    } else {
+      colors = vcColorField.colorScale;
     }
+    for (const [i, v] of [...uniqueValues].entries()) {
+      const newColor = colors[i];
+      if (!mapColorsValues.has(v)) {
+        mapColorsValues.set(v, chroma(newColor));
+      }
+    }
+
+    return values.map((v) => mapColorsValues.get(v) || defaultColor);
   }
 
-  return values.map((v) => mapColorsValues.get(v) || defaultColor);
+  //~ prepare the color scale
+  const min = vcColorField.min ?? 0; // default range <0, 1> seems reasonable...
+  const max = vcColorField.max ?? 1;
+  //~ DK: For some reason, typescript complains if you don't narrow the type, even though the call is exactly the same.
+  //~ This doesn't work: `const colorScale = chroma.scale(vc.color.colorScale)`
+  const colorScale =
+    typeof vcColorField.colorScale === "string"
+      ? chroma.scale(vcColorField.colorScale)
+      : chroma.scale(vcColorField.colorScale);
+  const scaledScale = colorScale.domain([min, max]);
+  let colorValues: chroma.Color[] = [];
+
+  if (values instanceof Float64Array) {
+    colorValues = Array.from(values, (v) => scaledScale(v));
+  }
+
+  if (values instanceof BigInt64Array) {
+    colorValues = Array.from(values, (v) => scaledScale(Number(v))); //~ is it sketchy to convert bigint to number?
+  }
+
+  if (Array.isArray(values) && values.every((d) => typeof d === "number")) {
+    colorValues = values.map((v) => scaledScale(v));
+  }
+  return colorValues;
 }
 
 function resolveColor(
@@ -252,7 +266,7 @@ function resolveColor(
   } else if (vc.color.field) {
     //~ color should be based on values in a column name in 'field'
     const fieldName = vc.color.field;
-    const valuesColumn = table.getChild(fieldName)?.toArray() as string[];
+    const valuesColumn = table.getChild(fieldName)?.toArray();
     color = mapValuesToColors(valuesColumn, vc.color);
   } else {
     //~ color should be based on values in the 'values' array
