@@ -158,32 +158,37 @@ function resolveScale(table: Table, vc: ViewConfig): number | number[] {
 }
 
 function mapValuesToScale(
-  values: ArrayLike<number> | ArrayLike<string> | number[] | string[],
+  values: number[] | string[] | Float64Array | BigInt64Array,
   vcScaleField: AssociatedValuesScale,
 ): number[] {
-  // Convert to array only when we need array methods, handling union types properly
-  let valuesArray: (number | string)[];
-  if (Array.isArray(values)) {
-    valuesArray = values;
-  } else {
-    // For ArrayLike, we need to check what type it actually contains
-    valuesArray = [];
-    for (let i = 0; i < values.length; i++) {
-      valuesArray.push(values[i] as number | string);
-    }
+  if (Array.isArray(values) && values.every((d) => typeof d === "string")) {
+    //~ string[] => nominal size scale
+    // TODO:
+    console.warn("TODO: not implemented (nominal size scale for chunk)");
+    return [];
   }
 
-  if (valuesArray.every((d): d is number => typeof d === "number")) {
+  const min = vcScaleField.min ?? 0; // default range <0, 1> seems reasonable...
+  const max = vcScaleField.max ?? 1;
+  const scaleMin = vcScaleField.scaleMin || 0.001; // TODO: define default somewhere more explicit
+  const scaleMax = vcScaleField.scaleMax || 0.05; // TODO: define default somewhere more explicit
+
+  if (Array.isArray(values) && values.every((d) => typeof d === "number")) {
     //~ quantitative size scale
-    const min = vcScaleField.min ?? 0; // default range <0, 1> seems reasonable...
-    const max = vcScaleField.max ?? 1;
-    const scaleMin = vcScaleField.scaleMin || 0.001; // TODO: define default somewhere more explicit
-    const scaleMax = vcScaleField.scaleMax || 0.05; // TODO: define default somewhere more explicit
-    return valuesArray.map((v) => valMap(v, min, max, scaleMin, scaleMax));
+    return values.map((v) => valMap(v, min, max, scaleMin, scaleMax));
   }
-  //~ string[] => nominal size scale
-  // TODO:
-  console.warn("TODO: not implemented (nominal size scale for chunk)");
+
+  if (values instanceof Float64Array) {
+    return Array.from(values, (v) => valMap(v, min, max, scaleMin, scaleMax));
+  }
+
+  if (values instanceof BigInt64Array) {
+    return Array.from(values, (v) =>
+      valMap(Number(v), min, max, scaleMin, scaleMax),
+    ); //~ is it sketchy to convert bigint to number?
+  }
+
+  console.warn("Not implemented: something went wrong in mapValuesToScale");
   return [];
 }
 
