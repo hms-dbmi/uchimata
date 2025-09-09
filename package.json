@@ -33,7 +33,7 @@
     "@types/three": "^0.171.0",
     "jsdom": "^26.1.0",
     "typescript": "^5.8.3",
-    "vite": "^7.0.5",
+    "vite": "^7.0.7",
     "vitest": "^3.2.4"
   },
   "dependencies": {
