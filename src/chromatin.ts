@@ -139,8 +139,6 @@ function resolveScale(table: Table, vc: ViewConfig): number | number[] {
   } else if (vc.scale.field) {
     const fieldName = vc.scale.field;
     const valuesColumn = table.getChild(fieldName)?.toArray();
-    console.log("valuesColumn");
-    console.log(valuesColumn);
     if (valuesColumn) {
       scale = mapValuesToScale(valuesColumn, vc.scale);
     }
@@ -163,9 +161,6 @@ function mapValuesToScale(
   values: number[] | string[] | Float64Array | BigInt64Array,
   vcScaleField: AssociatedValuesScale,
 ): number[] {
-  // Convert to array only when we need array methods, handling union types properly
-  console.warn("mapValuesToScale");
-
   if (Array.isArray(values) && values.every((d) => typeof d === "string")) {
     //~ string[] => nominal size scale
     // TODO:
@@ -188,7 +183,6 @@ function mapValuesToScale(
   }
 
   if (values instanceof BigInt64Array) {
-    console.warn("values is BigInt64Array");
     return Array.from(values, (v) =>
       valMap(Number(v), min, max, scaleMin, scaleMax),
     ); //~ is it sketchy to convert bigint to number?
