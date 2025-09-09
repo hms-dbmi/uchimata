@@ -1,5 +1,11 @@
 # uchimata
 
+## 0.3.3
+
+### Patch Changes
+
+- d5670b4: refactor: mapping value arrays to `scale` field of viewconfig
+
 ## 0.3.2
 
 ### Patch Changes
