@@ -7,7 +7,7 @@
     "@fontsource/inter": "^5.2.6",
     "@fontsource/source-serif-4": "^5.2.8",
     "@fontsource/spline-sans-mono": "^5.2.6",
-    "@observablehq/notebook-kit": "^1.0.1"
+    "@observablehq/notebook-kit": "^1.2.0"
   },
   "scripts": {
     "docs:preview": "notebooks preview --root docs",
