@@ -1,0 +1,71 @@
+<!doctype html>
+<notebook theme="air">
+  <title>Start to end: telomeres</title>
+  <script id="1" type="text/markdown">
+    # Start to end: telomeres
+  </script>
+  <script id="2" type="module" pinned="">
+    import * as uchi from "npm:uchimata";
+  </script>
+  <script id="3" type="module" pinned="">
+    //~ create a scene
+    let chromatinScene = uchi.initScene();
+
+    let currentStartIndex = 0;
+    for (const m of chromosomeModels) {
+      const currentChrLength = m.data.numRows;
+      chromatinScene = uchi.addStructureToScene(
+        chromatinScene,
+        m,
+      {
+        scale: 0.005,
+        color: {
+          field: "index",
+          min: currentStartIndex,
+          max: currentStartIndex + currentChrLength,
+          colorScale: "Viridis",
+        },
+        links: true,
+      });
+      currentStartIndex += currentChrLength;
+    }
+    const [renderer, canvas] = uchi.display(chromatinScene, { alwaysRedraw: false});
+
+    //~ ObservableHQ mechanism for clean-up after cell re-render
+    invalidation.then(() => renderer.endDrawing());
+
+    display(renderer.getCanvasElement());
+  </script>
+  <script id="8" type="module" pinned="">
+    // separate each chromosome to get full color scale utilization
+    const chrNames = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"];
+    const chromosomeModels = [];
+    for (const chr of chrNames) {
+      const chrId = `chr ${chr}`;
+      const chrModel = await uchi.selectChromosome(model.data, chrId);
+      chromosomeModels.push({ data: chrModel });
+    }
+  </script>
+  <script id="9" type="module" pinned="">
+    display(chromosomeModels);
+  </script>
+  <script id="7" type="text/markdown">
+    ## data loading
+  </script>
+  <script id="4" type="module" pinned="">
+    const urlStevens = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219500_Cell_4_model_1.arrow";
+    // https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219500_Cell_4_model_1.arrow
+    // "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_5.arrow"
+  </script>
+  <script id="5" type="module" pinned="">
+    const model = await uchi.loadFromURL(urlStevens, {
+      center: true,
+      normalize: true,
+    });
+  </script>
+  <script id="6" type="module" pinned="">
+    const chrModel = {
+      data: await uchi.selectChromosome(model.data, "chr j")
+    }
+  </script>
+</notebook>

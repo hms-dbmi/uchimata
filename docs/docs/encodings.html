@@ -1,0 +1,162 @@
+<!doctype html>
+<notebook theme="air">
+  <title>visual encodings</title>
+  <script id="1" type="text/markdown">
+    # visual encodings
+  </script>
+  <script id="2" type="module" pinned="">
+    import * as uchi from "npm:uchimata";
+  </script>
+  <script id="3" type="module" pinned="">
+    //~ create a scene
+    let chromatinScene = uchi.initScene();
+    chromatinScene = uchi.addStructureToScene(
+      chromatinScene,
+      chrModel,
+      {
+        scale: 0.005,
+        color: "crimson",
+        links: true,
+      });
+
+    const [renderer, canvas] = uchi.display(chromatinScene, { alwaysRedraw: false});
+
+    //~ ObservableHQ mechanism for clean-up after cell re-render
+    invalidation.then(() => renderer.endDrawing());
+
+    display(renderer.getCanvasElement());
+  </script>
+  <script id="10" type="module" pinned="">
+    //~ create a scene
+    let chromatinScene = uchi.initScene();
+    chromatinScene = uchi.addStructureToScene(
+      chromatinScene,
+      chrModel,
+      {
+        scale: 0.005,
+        color: "crimson",
+        // links: true,
+      });
+
+    const [renderer, canvas] = uchi.display(chromatinScene, { alwaysRedraw: false});
+
+    //~ ObservableHQ mechanism for clean-up after cell re-render
+    invalidation.then(() => renderer.endDrawing());
+
+    display(renderer.getCanvasElement());
+  </script>
+  <script id="11" type="module" pinned="">
+    //~ create a scene
+    let chromatinScene = uchi.initScene();
+    chromatinScene = uchi.addStructureToScene(
+      chromatinScene,
+      chrModel,
+      {
+        scale: 0.008,
+        color: "lightgreen",
+        links: true,
+        linksScale: 0.5,
+      });
+
+    const [renderer, canvas] = uchi.display(chromatinScene, { alwaysRedraw: false});
+
+    //~ ObservableHQ mechanism for clean-up after cell re-render
+    invalidation.then(() => renderer.endDrawing());
+
+    display(renderer.getCanvasElement());
+  </script>
+  <script id="12" type="module" pinned="">
+    //~ create a scene
+    let chromatinScene = uchi.initScene();
+    chromatinScene = uchi.addStructureToScene(
+      chromatinScene,
+      chrModel,
+      {
+        scale: 0.02,
+        color: "darkslateblue",
+        // links: true,
+        // linksScale: 0.5,
+        mark: "box",
+      });
+
+    const [renderer, canvas] = uchi.display(chromatinScene, { alwaysRedraw: false});
+
+    //~ ObservableHQ mechanism for clean-up after cell re-render
+    invalidation.then(() => renderer.endDrawing());
+
+    display(renderer.getCanvasElement());
+  </script>
+  <script id="13" type="module" pinned="">
+    //~ create a scene
+    let chromatinScene = uchi.initScene();
+    chromatinScene = uchi.addStructureToScene(
+      chromatinScene,
+      chrModel,
+      {
+        scale: 0.01,
+        color: {
+          field: "coord",
+          min: 3100000,
+          max: 130600000,
+          colorScale: "Viridis",
+        },
+        links: true,
+        // mark: "box",
+      });
+
+    const [renderer, canvas] = uchi.display(chromatinScene, { alwaysRedraw: false});
+
+    //~ ObservableHQ mechanism for clean-up after cell re-render
+    invalidation.then(() => renderer.endDrawing());
+
+    display(renderer.getCanvasElement());
+  </script>
+  <script id="14" type="module" pinned="">
+    //~ create a scene
+    let chromatinScene = uchi.initScene();
+    chromatinScene = uchi.addStructureToScene(
+      chromatinScene,
+      chrModel,
+      {
+        scale: {
+          field: "coord",
+          min: 3100000,
+          max: 130600000,
+          scaleMax: 0.01,
+          scaleMin: 0.001,
+        },
+        color: {
+          field: "coord",
+          min: 3100000,
+          max: 130600000,
+          colorScale: "Spectral",
+        },
+        links: true,
+        // mark: "box",
+      });
+
+    const [renderer, canvas] = uchi.display(chromatinScene, { alwaysRedraw: false});
+
+    //~ ObservableHQ mechanism for clean-up after cell re-render
+    invalidation.then(() => renderer.endDrawing());
+
+    display(renderer.getCanvasElement());
+  </script>
+  <script id="7" type="text/markdown">
+    ## Data preparation
+  </script>
+  <script id="4" type="module" pinned="">
+    const urlStevens = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_5.arrow";
+  </script>
+  <script id="5" type="module" pinned="">
+    const model = await uchi.loadFromURL(urlStevens, {
+      center: true,
+      normalize: true,
+    });
+  </script>
+  <script id="9" type="module" pinned="">
+    const chrModel = {
+      data: await uchi.selectChromosome(model.data, "chr j")
+    }
+  </script>
+</notebook>
