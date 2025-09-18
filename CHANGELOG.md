@@ -1,5 +1,12 @@
 # uchimata
 
+## 0.4.0
+
+### Minor Changes
+
+- 89a388c: test: add basic tests for viewConfig options
+  feat: mapping nominal values to scale
+
 ## 0.3.3
 
 ### Patch Changes
