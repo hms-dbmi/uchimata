@@ -138,9 +138,9 @@ export function resolveScale(table: Table, vc: ViewConfig): number | number[] {
     scale = vc.scale;
   } else if (vc.scale.field) {
     const fieldName = vc.scale.field;
-    const valuesColumn = table.getChild(fieldName)?.toArray();
+    const valuesColumn = table.getChild(fieldName);
     if (valuesColumn) {
-      scale = mapValuesToScale(valuesColumn, vc.scale);
+      scale = mapValuesToScale(valuesColumn.toArray(), vc.scale);
     }
   } else {
     //~ scale is an array of numbers
@@ -271,11 +271,11 @@ export function resolveColor(
   } else if (vc.color.field) {
     //~ color should be based on values in a column name in 'field'
     const fieldName = vc.color.field;
-    const valuesColumn = table.getChild(fieldName)?.toArray();
+    const valuesColumn = table.getChild(fieldName);
     if (!valuesColumn) {
       throw new Error(`Field '${fieldName}' not found in table`);
     }
-    color = mapValuesToColors(valuesColumn, vc.color);
+    color = mapValuesToColors(valuesColumn.toArray(), vc.color);
   } else {
     //~ color should be based on values in the 'values' array
     if (!vc.color.values) {
@@ -297,9 +297,13 @@ function buildDisplayableStructure(
   const vc = structure.viewConfig;
 
   //1. assemble the xyz into vec3s
-  const xArr = structure.structure.data.getChild("x")?.toArray();
-  const yArr = structure.structure.data.getChild("y")?.toArray();
-  const zArr = structure.structure.data.getChild("z")?.toArray();
+  const xCol = structure.structure.data.getChild("x");
+  const yCol = structure.structure.data.getChild("y");
+  const zCol = structure.structure.data.getChild("z");
+  assert(xCol && yCol && zCol, "x, y, z columns must be present in data");
+  const xArr = xCol.toArray();
+  const yArr = yCol.toArray();
+  const zArr = zCol.toArray();
 
   const chrColumn = structure.structure.data.getChild("chr");
   const chrArr = chrColumn ? (chrColumn.toArray() as string[]) : undefined;
