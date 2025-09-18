@@ -14,6 +14,7 @@ import type {
   ChromatinStructure,
   ViewConfig,
 } from "../chromatin-types.ts";
+import { assert } from "../assert.ts";
 
 function createTestTable(): Table {
   return tableFromArrays({
@@ -299,10 +300,9 @@ describe("resolveColor", () => {
     const result = resolveColor(table, viewConfig);
 
     expect(Array.isArray(result)).toBe(true);
-    expect((result as any[]).length).toBe(4);
-    (result as any[]).forEach((color) =>
-      expect(chroma.valid(color)).toBe(true),
-    );
+    assert(Array.isArray(result));
+    expect(result.length).toBe(4);
+    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
 
   test("should resolve colors from numeric values array with string colorScale", () => {
@@ -313,9 +313,10 @@ describe("resolveColor", () => {
       max: 35,
     };
     const viewConfig: ViewConfig = { color: colorConfig };
-    const result = resolveColor(table, viewConfig) as any[];
+    const result = resolveColor(table, viewConfig);
 
     expect(Array.isArray(result)).toBe(true);
+    assert(Array.isArray(result));
     expect(result).toHaveLength(4);
     result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
@@ -326,9 +327,10 @@ describe("resolveColor", () => {
       colorScale: ["#ff0000", "#00ff00", "#0000ff"],
     };
     const viewConfig: ViewConfig = { color: colorConfig };
-    const result = resolveColor(table, viewConfig) as any[];
+    const result = resolveColor(table, viewConfig);
 
     expect(Array.isArray(result)).toBe(true);
+    assert(Array.isArray(result));
     expect(result).toHaveLength(4);
     result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
@@ -339,9 +341,10 @@ describe("resolveColor", () => {
       colorScale: ["red", "green", "blue"],
     };
     const viewConfig: ViewConfig = { color: colorConfig };
-    const result = resolveColor(table, viewConfig) as any[];
+    const result = resolveColor(table, viewConfig);
 
     expect(Array.isArray(result)).toBe(true);
+    assert(Array.isArray(result));
     expect(result).toHaveLength(4);
     result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
@@ -352,9 +355,10 @@ describe("resolveColor", () => {
       colorScale: "Reds",
     };
     const viewConfig: ViewConfig = { color: colorConfig };
-    const result = resolveColor(table, viewConfig) as any[];
+    const result = resolveColor(table, viewConfig);
 
     expect(Array.isArray(result)).toBe(true);
+    assert(Array.isArray(result));
     expect(result).toHaveLength(4);
     result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
@@ -388,9 +392,10 @@ describe("resolveColor", () => {
       max: 40,
     };
     const viewConfig: ViewConfig = { color: colorConfig };
-    const result = resolveColor(table, viewConfig) as any[];
+    const result = resolveColor(table, viewConfig);
 
     expect(Array.isArray(result)).toBe(true);
+    assert(Array.isArray(result));
     expect(result).toHaveLength(4);
     result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
@@ -401,9 +406,10 @@ describe("resolveColor", () => {
       colorScale: ["red", "green", "blue"], // More colors than needed
     };
     const viewConfig: ViewConfig = { color: colorConfig };
-    const result = resolveColor(table, viewConfig) as any[];
+    const result = resolveColor(table, viewConfig);
 
     expect(Array.isArray(result)).toBe(true);
+    assert(Array.isArray(result));
     expect(result).toHaveLength(4);
     result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
