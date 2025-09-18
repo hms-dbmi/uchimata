@@ -1,6 +1,7 @@
 import { type Table, tableFromArrays } from "apache-arrow";
 import chroma from "chroma-js";
 import { beforeEach, describe, expect, test } from "vitest";
+import { assert } from "../assert.ts";
 import {
   addStructureToScene,
   initScene,
@@ -14,7 +15,6 @@ import type {
   ChromatinStructure,
   ViewConfig,
 } from "../chromatin-types.ts";
-import { assert } from "../assert.ts";
 
 function createTestTable(): Table {
   return tableFromArrays({
