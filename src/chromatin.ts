@@ -14,7 +14,7 @@ import type {
 } from "./chromatin-types";
 import { ChromatinBasicRenderer } from "./renderer/ChromatinBasicRenderer";
 import type { DrawableMarkSegment } from "./renderer/renderer-types";
-import { isBrewerPaletteName, valMap } from "./utils";
+import { divideRange, isBrewerPaletteName, valMap } from "./utils";
 
 /**
  * Simple initializer for the ChromatinScene structure.
@@ -34,7 +34,7 @@ export function addStructureToScene(
   if (viewConfig === undefined) {
     viewConfig = {
       scale: 0.0001,
-      color: undefined,
+      color: "red",
     };
   }
 
@@ -125,7 +125,7 @@ function buildStructures(
   }
 }
 
-function resolveScale(table: Table, vc: ViewConfig): number | number[] {
+export function resolveScale(table: Table, vc: ViewConfig): number | number[] {
   const defaultScale = 0.005; //~ default scale
   let scale: number | number[] = defaultScale;
 
@@ -138,9 +138,9 @@ function resolveScale(table: Table, vc: ViewConfig): number | number[] {
     scale = vc.scale;
   } else if (vc.scale.field) {
     const fieldName = vc.scale.field;
-    const valuesColumn = table.getChild(fieldName)?.toArray();
+    const valuesColumn = table.getChild(fieldName);
     if (valuesColumn) {
-      scale = mapValuesToScale(valuesColumn, vc.scale);
+      scale = mapValuesToScale(valuesColumn.toArray(), vc.scale);
     }
   } else {
     //~ scale is an array of numbers
@@ -161,17 +161,29 @@ function mapValuesToScale(
   values: number[] | string[] | Float64Array | BigInt64Array,
   vcScaleField: AssociatedValuesScale,
 ): number[] {
-  if (Array.isArray(values) && values.every((d) => typeof d === "string")) {
-    //~ string[] => nominal size scale
-    // TODO:
-    console.warn("TODO: not implemented (nominal size scale for chunk)");
-    return [];
-  }
-
   const min = vcScaleField.min ?? 0; // default range <0, 1> seems reasonable...
   const max = vcScaleField.max ?? 1;
-  const scaleMin = vcScaleField.scaleMin || 0.001; // TODO: define default somewhere more explicit
+  const scaleMin = vcScaleField.scaleMin || 0.01; // TODO: define default somewhere more explicit
   const scaleMax = vcScaleField.scaleMax || 0.05; // TODO: define default somewhere more explicit
+
+  if (Array.isArray(values) && values.every((d) => typeof d === "string")) {
+    //~ values is string[] => nominal size scale
+
+    // one pass to find how many unique values there are in the column
+    const uniqueValues = new Set<string>(values);
+    const numUniqueValues = uniqueValues.size;
+
+    //~ divides the <scaleMin, scaleMax> range into numUniqueValues parts
+    const mapScalesValues = new Map<string, number>();
+    const scales = divideRange(scaleMin, scaleMax, numUniqueValues);
+    for (const [i, v] of [...uniqueValues].entries()) {
+      const newScale = scales[i];
+      if (!mapScalesValues.has(v)) {
+        mapScalesValues.set(v, newScale);
+      }
+    }
+    return values.map((v) => mapScalesValues.get(v) || scaleMin);
+  }
 
   if (Array.isArray(values) && values.every((d) => typeof d === "number")) {
     //~ quantitative size scale
@@ -254,7 +266,7 @@ function mapValuesToColors(
   return colorValues;
 }
 
-function resolveColor(
+export function resolveColor(
   table: Table,
   vc: ViewConfig,
 ): ChromaColor | ChromaColor[] {
@@ -271,8 +283,11 @@ function resolveColor(
   } else if (vc.color.field) {
     //~ color should be based on values in a column name in 'field'
     const fieldName = vc.color.field;
-    const valuesColumn = table.getChild(fieldName)?.toArray();
-    color = mapValuesToColors(valuesColumn, vc.color);
+    const valuesColumn = table.getChild(fieldName);
+    if (!valuesColumn) {
+      throw new Error(`Field '${fieldName}' not found in table`);
+    }
+    color = mapValuesToColors(valuesColumn.toArray(), vc.color);
   } else {
     //~ color should be based on values in the 'values' array
     if (!vc.color.values) {
@@ -294,9 +309,13 @@ function buildDisplayableStructure(
   const vc = structure.viewConfig;
 
   //1. assemble the xyz into vec3s
-  const xArr = structure.structure.data.getChild("x")?.toArray();
-  const yArr = structure.structure.data.getChild("y")?.toArray();
-  const zArr = structure.structure.data.getChild("z")?.toArray();
+  const xCol = structure.structure.data.getChild("x");
+  const yCol = structure.structure.data.getChild("y");
+  const zCol = structure.structure.data.getChild("z");
+  assert(xCol && yCol && zCol, "x, y, z columns must be present in data");
+  const xArr = xCol.toArray();
+  const yArr = yCol.toArray();
+  const zArr = zCol.toArray();
 
   const chrColumn = structure.structure.data.getChild("chr");
   const chrArr = chrColumn ? (chrColumn.toArray() as string[]) : undefined;
@@ -369,6 +388,68 @@ function computeSegments(
 
   console.log(`Found segments: ${segmentsData.length}`);
   return segmentsData;
+}
+
+if (import.meta.vitest) {
+  const { describe, test, expect } = import.meta.vitest;
+
+  describe("computeSegments", () => {
+    test("should create single segment for continuous indices and same chromosome", () => {
+      const rowsNum = 3;
+      const chromosomeColumn = ["chr1", "chr1", "chr1"];
+      const indicesColumn = [0, 1, 2];
+
+      const segments = computeSegments(
+        rowsNum,
+        chromosomeColumn,
+        indicesColumn,
+      );
+
+      expect(segments).toHaveLength(1);
+      expect(segments[0]).toEqual({ start: 0, end: 2 });
+    });
+
+    test("should break segment when chromosome changes", () => {
+      const rowsNum = 4;
+      const chromosomeColumn = ["chr1", "chr1", "chr2", "chr2"];
+      const indicesColumn = [0, 1, 2, 3];
+
+      const segments = computeSegments(
+        rowsNum,
+        chromosomeColumn,
+        indicesColumn,
+      );
+
+      expect(segments).toHaveLength(2);
+      expect(segments[0]).toEqual({ start: 0, end: 1 });
+      expect(segments[1]).toEqual({ start: 2, end: 3 });
+    });
+
+    test("should break segment when indices are not continuous", () => {
+      const rowsNum = 4;
+      const chromosomeColumn = ["chr1", "chr1", "chr1", "chr1"];
+      const indicesColumn = [0, 1, 5, 6];
+
+      const segments = computeSegments(
+        rowsNum,
+        chromosomeColumn,
+        indicesColumn,
+      );
+
+      expect(segments).toHaveLength(2);
+      expect(segments[0]).toEqual({ start: 0, end: 1 });
+      expect(segments[1]).toEqual({ start: 2, end: 3 });
+    });
+
+    test("should handle undefined columns", () => {
+      const rowsNum = 3;
+
+      const segments = computeSegments(rowsNum, undefined, undefined);
+
+      expect(segments).toHaveLength(1);
+      expect(segments[0]).toEqual({ start: 0, end: 2 });
+    });
+  });
 }
 
 /**

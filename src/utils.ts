@@ -109,6 +109,15 @@ export const valMap = (
   return ((clampedValue - x1) * (y2 - x2)) / (y1 - x1) + x2;
 };
 
+export function divideRange(start: number, end: number, n: number): number[] {
+  if (n < 2) {
+    throw new Error("n must be at least 2 to include both boundaries");
+  }
+
+  const step = (end - start) / (n - 1);
+  return Array.from({ length: n }, (_, i) => start + i * step);
+}
+
 /*
  * Utility function for converting genomic coordinate (i.e., nucleobase position) to bin index, given certain resolution
  * --------
