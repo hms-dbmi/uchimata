@@ -274,7 +274,10 @@ describe("resolveScale", () => {
       scaleMax: 0.09,
     };
     const viewConfig: ViewConfig = { scale: scaleConfig };
-    const result = resolveScale(tableWithMultipleStrings, viewConfig) as number[];
+    const result = resolveScale(
+      tableWithMultipleStrings,
+      viewConfig,
+    ) as number[];
 
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(4);
