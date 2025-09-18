@@ -1,16 +1,28 @@
-import { expect, test, describe, beforeEach } from "vitest";
-import { Table, tableFromArrays } from "apache-arrow";
-import { initScene, addStructureToScene, resolveScale, resolveColor } from "../chromatin.ts";
-import type { ChromatinStructure, ViewConfig, AssociatedValuesColor, AssociatedValuesScale } from "../chromatin-types.ts";
+import { type Table, tableFromArrays } from "apache-arrow";
 import chroma from "chroma-js";
+import { beforeEach, describe, expect, test } from "vitest";
+import {
+  addStructureToScene,
+  initScene,
+  resolveColor,
+  resolveScale,
+} from "../chromatin.ts";
+import type {
+  AssociatedValuesColor,
+  AssociatedValuesScale,
+  ChromatinScene,
+  ChromatinStructure,
+  ViewConfig,
+} from "../chromatin-types.ts";
 
 function createTestTable(): Table {
   return tableFromArrays({
     x: [1.0, 2.0, 3.0],
     y: [1.0, 2.0, 3.0],
     z: [1.0, 2.0, 3.0],
-    chr: ['chr1', 'chr1', 'chr2'],
-    index: [0, 1, 2]
+    chr: ["chr1", "chr1", "chr2"],
+    coord: [3000000, 3100000, 3000000],
+    index: [0, 1, 2],
   });
 }
 
@@ -18,20 +30,20 @@ describe("initScene", () => {
   test("should return empty scene with structures array", () => {
     const scene = initScene();
     expect(scene).toEqual({
-      structures: []
+      structures: [],
     });
   });
 });
 
 describe("addStructureToScene", () => {
-  let scene: any;
+  let scene: ChromatinScene;
   let structure: ChromatinStructure;
 
   beforeEach(() => {
     scene = initScene();
     structure = {
       data: createTestTable(),
-      name: "test-structure"
+      name: "test-structure",
     };
   });
 
@@ -42,14 +54,14 @@ describe("addStructureToScene", () => {
     expect(updatedScene.structures[0].structure).toBe(structure);
     expect(updatedScene.structures[0].viewConfig).toEqual({
       scale: 0.0001,
-      color: undefined
+      color: "red",
     });
   });
 
   test("should add structure to scene with provided viewConfig", () => {
     const viewConfig: ViewConfig = {
       scale: 0.5,
-      color: "blue"
+      color: "blue",
     };
 
     const updatedScene = addStructureToScene(scene, structure, viewConfig);
@@ -75,11 +87,14 @@ describe("addStructureToScene", () => {
 describe("computeSegments", () => {
   test("should create single segment for continuous indices and same chromosome", () => {
     const rowsNum = 3;
-    const chromosomeColumn = ['chr1', 'chr1', 'chr1'];
+    const chromosomeColumn = ["chr1", "chr1", "chr1"];
     const indicesColumn = [0, 1, 2];
 
-    const segments = (global as any).computeSegments?.(rowsNum, chromosomeColumn, indicesColumn) ||
-      [{ start: 0, end: 2 }];
+    const segments = (global as any).computeSegments?.(
+      rowsNum,
+      chromosomeColumn,
+      indicesColumn,
+    ) || [{ start: 0, end: 2 }];
 
     expect(segments).toHaveLength(1);
     expect(segments[0]).toEqual({ start: 0, end: 2 });
@@ -87,11 +102,17 @@ describe("computeSegments", () => {
 
   test("should break segment when chromosome changes", () => {
     const rowsNum = 4;
-    const chromosomeColumn = ['chr1', 'chr1', 'chr2', 'chr2'];
+    const chromosomeColumn = ["chr1", "chr1", "chr2", "chr2"];
     const indicesColumn = [0, 1, 2, 3];
 
-    const segments = (global as any).computeSegments?.(rowsNum, chromosomeColumn, indicesColumn) ||
-      [{ start: 0, end: 1 }, { start: 2, end: 3 }];
+    const segments = (global as any).computeSegments?.(
+      rowsNum,
+      chromosomeColumn,
+      indicesColumn,
+    ) || [
+      { start: 0, end: 1 },
+      { start: 2, end: 3 },
+    ];
 
     expect(segments).toHaveLength(2);
     expect(segments[0]).toEqual({ start: 0, end: 1 });
@@ -100,11 +121,17 @@ describe("computeSegments", () => {
 
   test("should break segment when indices are not continuous", () => {
     const rowsNum = 4;
-    const chromosomeColumn = ['chr1', 'chr1', 'chr1', 'chr1'];
+    const chromosomeColumn = ["chr1", "chr1", "chr1", "chr1"];
     const indicesColumn = [0, 1, 5, 6];
 
-    const segments = (global as any).computeSegments?.(rowsNum, chromosomeColumn, indicesColumn) ||
-      [{ start: 0, end: 1 }, { start: 2, end: 3 }];
+    const segments = (global as any).computeSegments?.(
+      rowsNum,
+      chromosomeColumn,
+      indicesColumn,
+    ) || [
+      { start: 0, end: 1 },
+      { start: 2, end: 3 },
+    ];
 
     expect(segments).toHaveLength(2);
     expect(segments[0]).toEqual({ start: 0, end: 1 });
@@ -114,8 +141,11 @@ describe("computeSegments", () => {
   test("should handle undefined columns", () => {
     const rowsNum = 3;
 
-    const segments = (global as any).computeSegments?.(rowsNum, undefined, undefined) ||
-      [{ start: 0, end: 2 }];
+    const segments = (global as any).computeSegments?.(
+      rowsNum,
+      undefined,
+      undefined,
+    ) || [{ start: 0, end: 2 }];
 
     expect(segments).toHaveLength(1);
     expect(segments[0]).toEqual({ start: 0, end: 2 });
@@ -127,12 +157,12 @@ describe("ViewConfig integration tests", () => {
     const scene = initScene();
     const structure: ChromatinStructure = {
       data: createTestTable(),
-      name: "test-structure"
+      name: "test-structure",
     };
 
     const viewConfig: ViewConfig = {
       scale: 0.5,
-      color: "red"
+      color: "red",
     };
 
     const updatedScene = addStructureToScene(scene, structure, viewConfig);
@@ -143,12 +173,12 @@ describe("ViewConfig integration tests", () => {
     const scene = initScene();
     const structure: ChromatinStructure = {
       data: createTestTable(),
-      name: "test-structure"
+      name: "test-structure",
     };
 
     const viewConfig: ViewConfig = {
       scale: 0.1,
-      color: "blue"
+      color: "blue",
     };
 
     const updatedScene = addStructureToScene(scene, structure, viewConfig);
@@ -159,19 +189,19 @@ describe("ViewConfig integration tests", () => {
     const scene = initScene();
     const structure: ChromatinStructure = {
       data: createTestTable(),
-      name: "test-structure"
+      name: "test-structure",
     };
 
     const colorConfig: AssociatedValuesColor = {
       values: [1, 2, 3],
       colorScale: "viridis",
       min: 1,
-      max: 3
+      max: 3,
     };
 
     const viewConfig: ViewConfig = {
       scale: 0.1,
-      color: colorConfig
+      color: colorConfig,
     };
 
     const updatedScene = addStructureToScene(scene, structure, viewConfig);
@@ -188,8 +218,8 @@ describe("resolveScale", () => {
       y: [1.0, 2.0, 3.0, 4.0],
       z: [1.0, 2.0, 3.0, 4.0],
       values: [10, 20, 30, 40],
-      chr: ['chr1', 'chr1', 'chr2', 'chr2'],
-      index: [0, 1, 2, 3]
+      chr: ["chr1", "chr1", "chr2", "chr2"],
+      index: [0, 1, 2, 3],
     });
   });
 
@@ -211,11 +241,11 @@ describe("resolveScale", () => {
       scaleMin: 0.001,
       scaleMax: 0.05,
       min: 10,
-      max: 40
+      max: 40,
     };
     const viewConfig: ViewConfig = { scale: scaleConfig };
     const result = resolveScale(table, viewConfig) as number[];
-    
+
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(4);
     expect(result[0]).toBeCloseTo(0.001);
@@ -228,11 +258,11 @@ describe("resolveScale", () => {
       scaleMin: 0.002,
       scaleMax: 0.04,
       min: 5,
-      max: 35
+      max: 35,
     };
     const viewConfig: ViewConfig = { scale: scaleConfig };
     const result = resolveScale(table, viewConfig) as number[];
-    
+
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(4);
     expect(result[0]).toBeCloseTo(0.002);
@@ -243,11 +273,11 @@ describe("resolveScale", () => {
     const scaleConfig: AssociatedValuesScale = {
       values: [0, 1, 0.5, 0.8], // Match table length
       scaleMin: 0.001,
-      scaleMax: 0.05
+      scaleMax: 0.05,
     };
     const viewConfig: ViewConfig = { scale: scaleConfig };
     const result = resolveScale(table, viewConfig) as number[];
-    
+
     expect(Array.isArray(result)).toBe(true);
     expect(result[0]).toBeCloseTo(0.001);
     expect(result[1]).toBeCloseTo(0.05);
@@ -257,22 +287,22 @@ describe("resolveScale", () => {
     const scaleConfig: AssociatedValuesScale = {
       field: "nonexistent",
       scaleMin: 0.001,
-      scaleMax: 0.05
+      scaleMax: 0.05,
     };
     const viewConfig: ViewConfig = { scale: scaleConfig };
     const result = resolveScale(table, viewConfig);
-    
+
     expect(result).toBe(0.005);
   });
 
   test("should return default scale when values array is not provided", () => {
     const scaleConfig: AssociatedValuesScale = {
       scaleMin: 0.001,
-      scaleMax: 0.05
+      scaleMax: 0.05,
     };
     const viewConfig: ViewConfig = { scale: scaleConfig };
     const result = resolveScale(table, viewConfig);
-    
+
     expect(result).toBe(0.005);
   });
 
@@ -281,17 +311,17 @@ describe("resolveScale", () => {
       x: [1.0, 2.0],
       y: [1.0, 2.0],
       z: [1.0, 2.0],
-      category: ["A", "B"]
+      category: ["A", "B"],
     });
-    
+
     const scaleConfig: AssociatedValuesScale = {
       field: "category",
       scaleMin: 0.001,
-      scaleMax: 0.05
+      scaleMax: 0.05,
     };
     const viewConfig: ViewConfig = { scale: scaleConfig };
     const result = resolveScale(tableWithStrings, viewConfig) as number[];
-    
+
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(0);
   });
@@ -307,8 +337,8 @@ describe("resolveColor", () => {
       z: [1.0, 2.0, 3.0, 4.0],
       values: [10, 20, 30, 40],
       categories: ["A", "B", "A", "C"],
-      chr: ['chr1', 'chr1', 'chr2', 'chr2'],
-      index: [0, 1, 2, 3]
+      chr: ["chr1", "chr1", "chr2", "chr2"],
+      index: [0, 1, 2, 3],
     });
   });
 
@@ -331,16 +361,16 @@ describe("resolveColor", () => {
       field: "values",
       colorScale: "Viridis",
       min: 10,
-      max: 40
+      max: 40,
     };
     const viewConfig: ViewConfig = { color: colorConfig };
     const result = resolveColor(table, viewConfig);
-    
-    // The function currently has issues with field-based numeric data processing
-    // This is a known limitation - it returns a typed array with NaN values
-    expect(result).toBeInstanceOf(Float64Array);
-    expect((result as unknown as Float64Array).length).toBe(4);
-    // Note: The current implementation has a bug where NaN values are returned
+
+    expect(Array.isArray(result)).toBe(true);
+    expect((result as any[]).length).toBe(4);
+    (result as any[]).forEach((color) =>
+      expect(chroma.valid(color)).toBe(true),
+    );
   });
 
   test("should resolve colors from numeric values array with string colorScale", () => {
@@ -348,73 +378,73 @@ describe("resolveColor", () => {
       values: [5, 15, 25, 35],
       colorScale: "Blues",
       min: 5,
-      max: 35
+      max: 35,
     };
     const viewConfig: ViewConfig = { color: colorConfig };
     const result = resolveColor(table, viewConfig) as any[];
-    
+
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(4);
-    result.forEach(color => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
 
   test("should resolve colors from categorical field", () => {
     const colorConfig: AssociatedValuesColor = {
       field: "categories",
-      colorScale: ["#ff0000", "#00ff00", "#0000ff"]
+      colorScale: ["#ff0000", "#00ff00", "#0000ff"],
     };
     const viewConfig: ViewConfig = { color: colorConfig };
     const result = resolveColor(table, viewConfig) as any[];
-    
+
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(4);
-    result.forEach(color => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
 
   test("should resolve colors from categorical values array", () => {
     const colorConfig: AssociatedValuesColor = {
       values: ["X", "Y", "X", "Z"],
-      colorScale: ["red", "green", "blue"]
+      colorScale: ["red", "green", "blue"],
     };
     const viewConfig: ViewConfig = { color: colorConfig };
     const result = resolveColor(table, viewConfig) as any[];
-    
+
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(4);
-    result.forEach(color => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
 
   test("should use default color range when min/max not provided for numeric scale", () => {
     const colorConfig: AssociatedValuesColor = {
       values: [0, 0.5, 1, 0.75], // Match table length
-      colorScale: "Reds"
+      colorScale: "Reds",
     };
     const viewConfig: ViewConfig = { color: colorConfig };
     const result = resolveColor(table, viewConfig) as any[];
-    
+
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(4);
-    result.forEach(color => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
 
   test("should handle non-existent field gracefully", () => {
     const colorConfig: AssociatedValuesColor = {
       field: "nonexistent",
-      colorScale: "viridis"
+      colorScale: "viridis",
     };
     const viewConfig: ViewConfig = { color: colorConfig };
-    
+
     // The function currently doesn't handle this case gracefully - it will throw
     expect(() => resolveColor(table, viewConfig)).toThrow();
   });
 
   test("should return default color when values array is not provided", () => {
     const colorConfig: AssociatedValuesColor = {
-      colorScale: "viridis"
+      colorScale: "viridis",
     };
     const viewConfig: ViewConfig = { color: colorConfig };
     const result = resolveColor(table, viewConfig);
-    
+
     expect(result).toEqual(chroma("red"));
   });
 
@@ -423,36 +453,36 @@ describe("resolveColor", () => {
       values: [10, 20, 30, 40], // Match table length
       colorScale: ["#ff0000", "#00ff00", "#0000ff"],
       min: 10,
-      max: 40
+      max: 40,
     };
     const viewConfig: ViewConfig = { color: colorConfig };
     const result = resolveColor(table, viewConfig) as any[];
-    
+
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(4);
-    result.forEach(color => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
 
   test("should handle categorical colors when enough colors provided", () => {
     const colorConfig: AssociatedValuesColor = {
       values: ["A", "B", "A", "B"], // Match table length, 2 unique values (A, B)
-      colorScale: ["red", "green", "blue"] // More colors than needed
+      colorScale: ["red", "green", "blue"], // More colors than needed
     };
     const viewConfig: ViewConfig = { color: colorConfig };
     const result = resolveColor(table, viewConfig) as any[];
-    
+
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(4);
-    result.forEach(color => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
   });
 
   test("should throw when insufficient colors for categorical values", () => {
     const colorConfig: AssociatedValuesColor = {
       values: ["A", "B", "A", "C"], // 3 unique values (A, B, C)
-      colorScale: ["red", "green"] // Only 2 colors
+      colorScale: ["red", "green"], // Only 2 colors
     };
     const viewConfig: ViewConfig = { color: colorConfig };
-    
+
     // Current implementation throws when there aren't enough colors
     expect(() => resolveColor(table, viewConfig)).toThrow();
   });
