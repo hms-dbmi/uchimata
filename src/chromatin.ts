@@ -14,7 +14,7 @@ import type {
 } from "./chromatin-types";
 import { ChromatinBasicRenderer } from "./renderer/ChromatinBasicRenderer";
 import type { DrawableMarkSegment } from "./renderer/renderer-types";
-import { isBrewerPaletteName, valMap } from "./utils";
+import { divideRange, isBrewerPaletteName, valMap } from "./utils";
 
 /**
  * Simple initializer for the ChromatinScene structure.
@@ -161,17 +161,29 @@ function mapValuesToScale(
   values: number[] | string[] | Float64Array | BigInt64Array,
   vcScaleField: AssociatedValuesScale,
 ): number[] {
-  if (Array.isArray(values) && values.every((d) => typeof d === "string")) {
-    //~ string[] => nominal size scale
-    // TODO:
-    console.warn("TODO: not implemented (nominal size scale for chunk)");
-    return [];
-  }
-
   const min = vcScaleField.min ?? 0; // default range <0, 1> seems reasonable...
   const max = vcScaleField.max ?? 1;
-  const scaleMin = vcScaleField.scaleMin || 0.001; // TODO: define default somewhere more explicit
+  const scaleMin = vcScaleField.scaleMin || 0.01; // TODO: define default somewhere more explicit
   const scaleMax = vcScaleField.scaleMax || 0.05; // TODO: define default somewhere more explicit
+
+  if (Array.isArray(values) && values.every((d) => typeof d === "string")) {
+    //~ values is string[] => nominal size scale
+
+    // one pass to find how many unique values there are in the column
+    const uniqueValues = new Set<string>(values);
+    const numUniqueValues = uniqueValues.size;
+
+    //~ divides the <scaleMin, scaleMax> range into numUniqueValues parts
+    const mapScalesValues = new Map<string, number>();
+    const scales = divideRange(scaleMin, scaleMax, numUniqueValues);
+    for (const [i, v] of [...uniqueValues].entries()) {
+      const newScale = scales[i];
+      if (!mapScalesValues.has(v)) {
+        mapScalesValues.set(v, newScale);
+      }
+    }
+    return values.map((v) => mapScalesValues.get(v) || scaleMin);
+  }
 
   if (Array.isArray(values) && values.every((d) => typeof d === "number")) {
     //~ quantitative size scale

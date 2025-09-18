@@ -239,7 +239,7 @@ describe("resolveScale", () => {
     expect(result).toBe(0.005);
   });
 
-  test("should handle string values in field (nominal scale - not implemented)", () => {
+  test("should handle nominal values (strings) mapped to scale", () => {
     const tableWithStrings = tableFromArrays({
       x: [1.0, 2.0],
       y: [1.0, 2.0],
