@@ -374,6 +374,68 @@ function computeSegments(
   return segmentsData;
 }
 
+if (import.meta.vitest) {
+  const { describe, test, expect } = import.meta.vitest;
+
+  describe("computeSegments", () => {
+    test("should create single segment for continuous indices and same chromosome", () => {
+      const rowsNum = 3;
+      const chromosomeColumn = ["chr1", "chr1", "chr1"];
+      const indicesColumn = [0, 1, 2];
+
+      const segments = computeSegments(
+        rowsNum,
+        chromosomeColumn,
+        indicesColumn,
+      );
+
+      expect(segments).toHaveLength(1);
+      expect(segments[0]).toEqual({ start: 0, end: 2 });
+    });
+
+    test("should break segment when chromosome changes", () => {
+      const rowsNum = 4;
+      const chromosomeColumn = ["chr1", "chr1", "chr2", "chr2"];
+      const indicesColumn = [0, 1, 2, 3];
+
+      const segments = computeSegments(
+        rowsNum,
+        chromosomeColumn,
+        indicesColumn,
+      );
+
+      expect(segments).toHaveLength(2);
+      expect(segments[0]).toEqual({ start: 0, end: 1 });
+      expect(segments[1]).toEqual({ start: 2, end: 3 });
+    });
+
+    test("should break segment when indices are not continuous", () => {
+      const rowsNum = 4;
+      const chromosomeColumn = ["chr1", "chr1", "chr1", "chr1"];
+      const indicesColumn = [0, 1, 5, 6];
+
+      const segments = computeSegments(
+        rowsNum,
+        chromosomeColumn,
+        indicesColumn,
+      );
+
+      expect(segments).toHaveLength(2);
+      expect(segments[0]).toEqual({ start: 0, end: 1 });
+      expect(segments[1]).toEqual({ start: 2, end: 3 });
+    });
+
+    test("should handle undefined columns", () => {
+      const rowsNum = 3;
+
+      const segments = computeSegments(rowsNum, undefined, undefined);
+
+      expect(segments).toHaveLength(1);
+      expect(segments[0]).toEqual({ start: 0, end: 2 });
+    });
+  });
+}
+
 /**
  *
  * Breaks up the model into continous segments (same mark, possibly linked). Looks at both continuity in the indices and in the chromosome column.
