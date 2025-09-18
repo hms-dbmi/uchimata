@@ -256,7 +256,31 @@ describe("resolveScale", () => {
     const result = resolveScale(tableWithStrings, viewConfig) as number[];
 
     expect(Array.isArray(result)).toBe(true);
-    expect(result).toHaveLength(0);
+    expect(result).toHaveLength(2);
+    expect(result).toEqual([0.001, 0.05]);
+  });
+
+  test("should handle multiple nominal values with intermediate scale values", () => {
+    const tableWithMultipleStrings = tableFromArrays({
+      x: [1.0, 2.0, 3.0, 4.0],
+      y: [1.0, 2.0, 3.0, 4.0],
+      z: [1.0, 2.0, 3.0, 4.0],
+      category: ["A", "B", "C", "A"],
+    });
+
+    const scaleConfig: AssociatedValuesScale = {
+      field: "category",
+      scaleMin: 0.01,
+      scaleMax: 0.09,
+    };
+    const viewConfig: ViewConfig = { scale: scaleConfig };
+    const result = resolveScale(tableWithMultipleStrings, viewConfig) as number[];
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result).toHaveLength(4);
+    // With 3 unique values (A, B, C), they should be mapped to 0.01, 0.05, 0.09
+    // The mapping should be: A -> 0.01, B -> 0.05, C -> 0.09, A -> 0.01
+    expect(result).toEqual([0.01, 0.05, 0.09, 0.01]);
   });
 });
 
