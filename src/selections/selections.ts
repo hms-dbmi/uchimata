@@ -1,5 +1,6 @@
 import { type Table, tableToIPC } from "@uwdata/flechette";
 import { DuckDBSingleton } from "./DuckDBClient";
+import { assert } from "../assert";
 
 const duckDB = new DuckDBSingleton();
 
@@ -15,7 +16,9 @@ export async function makeCuttingPlane(
   if (!(await duckDB.getExistingTables()).includes("structure")) {
     const db = await duckDB.getDatabase();
     const conn = await db.connect();
-    conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+    const tableAsIPC = tableToIPC(model, {});
+    assert(tableAsIPC, "Failed to convert model to IPC format");
+    conn.insertArrowFromIPCStream(tableAsIPC, { name: "structure" });
   }
 
   const query = invert
@@ -39,7 +42,9 @@ export async function selectChromosome(
   if (!(await duckDB.getExistingTables()).includes("structure")) {
     const db = await duckDB.getDatabase();
     const conn = await db.connect();
-    conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+    const tableAsIPC = tableToIPC(model, {});
+    assert(tableAsIPC, "Failed to convert model to IPC format");
+    conn.insertArrowFromIPCStream(tableAsIPC, { name: "structure" });
   }
 
   const query = `SELECT * FROM structure WHERE ${column} ='${chromName}'`;
@@ -59,7 +64,9 @@ export async function selectRange(
   if (!(await duckDB.getExistingTables()).includes("structure")) {
     const db = await duckDB.getDatabase();
     const conn = await db.connect();
-    conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+    const tableAsIPC = tableToIPC(model, {});
+    assert(tableAsIPC, "Failed to convert model to IPC format");
+    conn.insertArrowFromIPCStream(tableAsIPC, { name: "structure" });
   }
 
   const query = `SELECT * FROM structure WHERE ${chromColumn} ='${chromName}' AND ${coordinateColumn} >= ${start} AND ${coordinateColumn} <= ${end}`;
@@ -78,7 +85,9 @@ export async function sphereSelect(
   if (!(await duckDB.getExistingTables()).includes("structure")) {
     const db = await duckDB.getDatabase();
     const conn = await db.connect();
-    conn.insertArrowFromIPCStream(tableToIPC(model), { name: "structure" });
+    const tableAsIPC = tableToIPC(model, {});
+    assert(tableAsIPC, "Failed to convert model to IPC format");
+    conn.insertArrowFromIPCStream(tableAsIPC, { name: "structure" });
   }
 
   const query = `SELECT * FROM structure WHERE POWER(x - ${x}, 2) + POWER(y - ${y}, 2) + POWER(z - ${z}, 2) <= POWER(${radius}, 2)`;
