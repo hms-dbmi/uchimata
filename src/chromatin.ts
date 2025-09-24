@@ -1,4 +1,4 @@
-import type { Table } from "apache-arrow";
+import type { Table } from "@uwdata/flechette";
 import type { Color as ChromaColor } from "chroma-js";
 import chroma from "chroma-js";
 import { vec3 } from "gl-matrix";

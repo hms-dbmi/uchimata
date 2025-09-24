@@ -1,4 +1,4 @@
-import { type Table, tableToIPC } from "apache-arrow";
+import { type Table, tableToIPC } from "@uwdata/flechette";
 import { DuckDBSingleton } from "./DuckDBClient";
 
 const duckDB = new DuckDBSingleton();

@@ -1,4 +1,4 @@
-import { type Table, tableFromArrays, tableFromIPC } from "apache-arrow";
+import { type Table, tableFromArrays, tableFromIPC } from "@uwdata/flechette";
 import { vec3 } from "gl-matrix";
 import { assert } from "../assert.ts";
 import type { ChromatinStructure } from "../chromatin-types";
