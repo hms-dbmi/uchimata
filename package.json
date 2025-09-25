@@ -26,14 +26,14 @@
     }
   },
   "devDependencies": {
-    "@biomejs/biome": "2.1.2",
-    "@changesets/cli": "^2.29.5",
+    "@biomejs/biome": "2.2.4",
+    "@changesets/cli": "^2.29.7",
     "@types/chroma-js": "^3.1.1",
-    "@types/node": "^24.0.15",
+    "@types/node": "^24.5.2",
     "@types/three": "^0.171.0",
-    "jsdom": "^26.1.0",
-    "typescript": "^5.8.3",
-    "vite": "^7.0.7",
+    "jsdom": "^27.0.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.7",
     "vitest": "^3.2.4"
   },
   "dependencies": {
