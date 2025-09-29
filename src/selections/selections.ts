@@ -1,6 +1,6 @@
 import { type Table, tableToIPC } from "@uwdata/flechette";
-import { DuckDBSingleton } from "./DuckDBClient";
 import { assert } from "../assert";
+import { DuckDBSingleton } from "./DuckDBClient";
 
 const duckDB = new DuckDBSingleton();
 
