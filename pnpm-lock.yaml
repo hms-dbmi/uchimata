@@ -14,9 +14,9 @@ importers:
       '@preact/signals-core':
         specifier: ^1.11.0
         version: 1.11.0
-      apache-arrow:
-        specifier: ^17.0.0
-        version: 17.0.0
+      '@uwdata/flechette':
+        specifier: ^2.2.3
+        version: 2.2.3
       chroma-js:
         specifier: ^3.1.2
         version: 3.1.2
@@ -662,6 +662,9 @@ packages:
 
   '@types/webxr@0.5.19':
     resolution: {integrity: sha512-4hxA+NwohSgImdTSlPXEqDqqFktNgmTXQ05ff1uWam05tNGroCMp4G+4XVl6qWm1p7GQ/9oD41kAYsSssF6Mzw==}
+
+  '@uwdata/flechette@2.2.3':
+    resolution: {integrity: sha512-5qMO+KT+udDFwgh+HxQ2memj27bPeCXlJ7bWnmI1wvW8RaoHhSJtI7PHVDd2AONhqXuuDLVkWKaV0G51ozrpWw==}
 
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
@@ -2193,6 +2196,8 @@ snapshots:
       meshoptimizer: 0.18.1
 
   '@types/webxr@0.5.19': {}
+
+  '@uwdata/flechette@2.2.3': {}
 
   '@vitest/expect@3.2.4':
     dependencies:

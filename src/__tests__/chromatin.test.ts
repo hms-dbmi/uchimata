@@ -1,4 +1,4 @@
-import { type Table, tableFromArrays } from "apache-arrow";
+import { type Table, tableFromArrays } from "@uwdata/flechette";
 import chroma from "chroma-js";
 import { beforeEach, describe, expect, test } from "vitest";
 import { assert } from "../assert.ts";

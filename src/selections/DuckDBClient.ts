@@ -1,5 +1,22 @@
 import type { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 import * as duckdb from "@duckdb/duckdb-wasm";
+import { tableFromIPC } from "@uwdata/flechette";
+
+function getArrowIPC(
+  con: duckdb.AsyncDuckDBConnection,
+  query: string,
+): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => {
+    con.useUnsafe(async (bindings, conn) => {
+      try {
+        const buffer = await bindings.runQuery(conn, query);
+        resolve(buffer);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  });
+}
 
 export class DuckDBSingleton {
   db: AsyncDuckDB | null;
@@ -44,15 +61,13 @@ export class DuckDBSingleton {
     return await this.initialize();
   }
 
+  //~ Sidesteps the use of apache-arrow, uses flechette instead.
+  //~ Pretty much copied from: https://github.com/uwdata/mosaic/pull/480
   async query(sql: string) {
     const db = await this.getDatabase();
     const conn = await db.connect();
-    try {
-      const result = await conn.query(sql);
-      return result;
-    } finally {
-      await conn.close();
-    }
+    const result = await getArrowIPC(conn, sql);
+    return tableFromIPC(result);
   }
 
   async getExistingTables(): Promise<string[]> {

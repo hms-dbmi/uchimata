@@ -1,4 +1,4 @@
-import { type Table, tableFromArrays, tableFromIPC } from "apache-arrow";
+import { type Table, tableFromArrays, tableFromIPC } from "@uwdata/flechette";
 import { vec3 } from "gl-matrix";
 import { assert } from "../assert.ts";
 import type { ChromatinStructure } from "../chromatin-types";
@@ -45,9 +45,15 @@ function recenterXYZColumns(table: Table): Table {
   assert(columnNames.includes("y"), "y column is missing");
   assert(columnNames.includes("z"), "z column is missing");
 
-  const newXCol = recenterSingleColumn(table.getChild("x")?.toArray());
-  const newYCol = recenterSingleColumn(table.getChild("y")?.toArray());
-  const newZCol = recenterSingleColumn(table.getChild("z")?.toArray());
+  const newXCol = recenterSingleColumn(
+    Array.from(table.getChild("x")?.toArray()),
+  );
+  const newYCol = recenterSingleColumn(
+    Array.from(table.getChild("y")?.toArray()),
+  );
+  const newZCol = recenterSingleColumn(
+    Array.from(table.getChild("z")?.toArray()),
+  );
 
   //~ building in object of arrays from the original table
   const fields = table.schema.fields;
@@ -137,9 +143,9 @@ function saveOriginalXYZ(table: Table): Table {
   //~ reassemble the table with duplicated x, y, z columns (as xRaw, yRaw, zRaw)
   return tableFromArrays({
     ...oldTableObject,
-    xRaw: xColAsArray,
-    yRaw: yColAsArray,
-    zRaw: zColAsArray,
+    xRaw: Array.from(xColAsArray),
+    yRaw: Array.from(yColAsArray),
+    zRaw: Array.from(zColAsArray),
   });
 }
 
