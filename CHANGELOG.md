@@ -1,5 +1,11 @@
 # uchimata
 
+## 0.4.1
+
+### Patch Changes
+
+- 529a5a4: replace apache-arrow with flechette for arrow IPC parsing
+
 ## 0.4.0
 
 ### Minor Changes
