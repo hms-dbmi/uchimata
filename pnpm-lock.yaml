@@ -15,8 +15,8 @@ importers:
         specifier: ^1.12.1
         version: 1.12.1
       '@uwdata/flechette':
-        specifier: ^2.2.3
-        version: 2.2.3
+        specifier: ^2.2.4
+        version: 2.2.4
       chroma-js:
         specifier: ^3.1.2
         version: 3.1.2
@@ -664,8 +664,8 @@ packages:
   '@types/webxr@0.5.24':
     resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
 
-  '@uwdata/flechette@2.2.3':
-    resolution: {integrity: sha512-5qMO+KT+udDFwgh+HxQ2memj27bPeCXlJ7bWnmI1wvW8RaoHhSJtI7PHVDd2AONhqXuuDLVkWKaV0G51ozrpWw==}
+  '@uwdata/flechette@2.2.4':
+    resolution: {integrity: sha512-fNnR5uGz+c7FwUFNEFxMwss+xMM60d2plgyEY311lzyJDHgWfdTRM74wFa9wZxQoB9LRJ6oM+XDzXrg/IVNq7w==}
 
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
@@ -859,8 +859,8 @@ packages:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
     engines: {node: '>=8'}
 
-  detect-libc@2.1.1:
-    resolution: {integrity: sha512-ecqj/sy1jcK1uWrwpR67UhYrIFQ+5WlGxth34WquCbamhFA6hkkwiu37o6J5xCHdo1oixJRfVRw+ywV+Hq/0Aw==}
+  detect-libc@2.1.2:
+    resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
 
   dir-glob@3.0.1:
@@ -2205,7 +2205,7 @@ snapshots:
 
   '@types/webxr@0.5.24': {}
 
-  '@uwdata/flechette@2.2.3': {}
+  '@uwdata/flechette@2.2.4': {}
 
   '@vitest/expect@3.2.4':
     dependencies:
@@ -2400,7 +2400,7 @@ snapshots:
 
   detect-indent@6.1.0: {}
 
-  detect-libc@2.1.1:
+  detect-libc@2.1.2:
     optional: true
 
   dir-glob@3.0.1:
@@ -2679,7 +2679,7 @@ snapshots:
 
   lightningcss@1.30.1:
     dependencies:
-      detect-libc: 2.1.1
+      detect-libc: 2.1.2
     optionalDependencies:
       lightningcss-darwin-arm64: 1.30.1
       lightningcss-darwin-x64: 1.30.1
