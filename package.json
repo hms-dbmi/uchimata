@@ -39,7 +39,7 @@
   "dependencies": {
     "@duckdb/duckdb-wasm": "1.30.0",
     "@preact/signals-core": "^1.12.1",
-    "@uwdata/flechette": "^2.2.3",
+    "@uwdata/flechette": "^2.2.4",
     "chroma-js": "^3.1.2",
     "gl-matrix": "3.4.3",
     "n8ao": "^1.10.1",

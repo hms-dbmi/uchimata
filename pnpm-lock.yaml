@@ -15,8 +15,8 @@ importers:
         specifier: ^1.12.1
         version: 1.12.1
       '@uwdata/flechette':
-        specifier: ^2.2.3
-        version: 2.2.3
+        specifier: ^2.2.4
+        version: 2.2.4
       chroma-js:
         specifier: ^3.1.2
         version: 3.1.2
@@ -664,8 +664,8 @@ packages:
   '@types/webxr@0.5.24':
     resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
 
-  '@uwdata/flechette@2.2.3':
-    resolution: {integrity: sha512-5qMO+KT+udDFwgh+HxQ2memj27bPeCXlJ7bWnmI1wvW8RaoHhSJtI7PHVDd2AONhqXuuDLVkWKaV0G51ozrpWw==}
+  '@uwdata/flechette@2.2.4':
+    resolution: {integrity: sha512-fNnR5uGz+c7FwUFNEFxMwss+xMM60d2plgyEY311lzyJDHgWfdTRM74wFa9wZxQoB9LRJ6oM+XDzXrg/IVNq7w==}
 
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
@@ -2200,7 +2200,7 @@ snapshots:
 
   '@types/webxr@0.5.24': {}
 
-  '@uwdata/flechette@2.2.3': {}
+  '@uwdata/flechette@2.2.4': {}
 
   '@vitest/expect@3.2.4':
     dependencies:
