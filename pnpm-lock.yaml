@@ -48,9 +48,6 @@ importers:
       '@types/three':
         specifier: ^0.180.0
         version: 0.180.0
-      jsdom:
-        specifier: ^27.0.0
-        version: 27.0.0(postcss@8.5.6)
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
@@ -1641,6 +1638,7 @@ snapshots:
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 11.2.2
+    optional: true
 
   '@asamuzakjp/dom-selector@6.5.6':
     dependencies:
@@ -1649,8 +1647,10 @@ snapshots:
       css-tree: 3.1.0
       is-potential-custom-element-name: 1.0.1
       lru-cache: 11.2.2
+    optional: true
 
-  '@asamuzakjp/nwsapi@2.3.9': {}
+  '@asamuzakjp/nwsapi@2.3.9':
+    optional: true
 
   '@babel/runtime@7.28.4': {}
 
@@ -1854,6 +1854,7 @@ snapshots:
   '@csstools/css-syntax-patches-for-csstree@1.0.14(postcss@8.5.6)':
     dependencies:
       postcss: 8.5.6
+    optional: true
 
   '@csstools/css-tokenizer@3.0.4': {}
 
@@ -2300,6 +2301,7 @@ snapshots:
   bidi-js@1.0.3:
     dependencies:
       require-from-string: 2.0.2
+    optional: true
 
   braces@3.0.3:
     dependencies:
@@ -2362,6 +2364,7 @@ snapshots:
     dependencies:
       mdn-data: 2.12.2
       source-map-js: 1.2.1
+    optional: true
 
   cssstyle@4.6.0:
     dependencies:
@@ -2375,6 +2378,7 @@ snapshots:
       css-tree: 3.1.0
     transitivePeerDependencies:
       - postcss
+    optional: true
 
   data-urls@5.0.0:
     dependencies:
@@ -2385,6 +2389,7 @@ snapshots:
     dependencies:
       whatwg-mimetype: 4.0.0
       whatwg-url: 15.1.0
+    optional: true
 
   debug@4.4.1:
     dependencies:
@@ -2640,6 +2645,7 @@ snapshots:
       - postcss
       - supports-color
       - utf-8-validate
+    optional: true
 
   json-bignum@0.0.3: {}
 
@@ -2709,7 +2715,8 @@ snapshots:
 
   lru-cache@10.4.3: {}
 
-  lru-cache@11.2.2: {}
+  lru-cache@11.2.2:
+    optional: true
 
   magic-string@0.30.17:
     dependencies:
@@ -2729,7 +2736,8 @@ snapshots:
       punycode.js: 2.3.1
       uc.micro: 2.1.0
 
-  mdn-data@2.12.2: {}
+  mdn-data@2.12.2:
+    optional: true
 
   mdurl@2.0.0: {}
 
@@ -2826,7 +2834,8 @@ snapshots:
       pify: 4.0.1
       strip-bom: 3.0.0
 
-  require-from-string@2.0.2: {}
+  require-from-string@2.0.2:
+    optional: true
 
   resolve-from@5.0.0: {}
 
@@ -2946,7 +2955,8 @@ snapshots:
 
   tldts-core@6.1.86: {}
 
-  tldts-core@7.0.16: {}
+  tldts-core@7.0.16:
+    optional: true
 
   tldts@6.1.86:
     dependencies:
@@ -2955,6 +2965,7 @@ snapshots:
   tldts@7.0.16:
     dependencies:
       tldts-core: 7.0.16
+    optional: true
 
   to-regex-range@5.0.1:
     dependencies:
@@ -2967,6 +2978,7 @@ snapshots:
   tough-cookie@6.0.0:
     dependencies:
       tldts: 7.0.16
+    optional: true
 
   tr46@5.1.1:
     dependencies:
@@ -2975,6 +2987,7 @@ snapshots:
   tr46@6.0.0:
     dependencies:
       punycode: 2.3.1
+    optional: true
 
   tslib@2.8.1: {}
 
@@ -3077,7 +3090,8 @@ snapshots:
 
   webidl-conversions@7.0.0: {}
 
-  webidl-conversions@8.0.0: {}
+  webidl-conversions@8.0.0:
+    optional: true
 
   whatwg-encoding@3.1.1:
     dependencies:
@@ -3094,6 +3108,7 @@ snapshots:
     dependencies:
       tr46: 6.0.0
       webidl-conversions: 8.0.0
+    optional: true
 
   which@2.0.2:
     dependencies:
