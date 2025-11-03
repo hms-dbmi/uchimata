@@ -30,7 +30,7 @@
     "@changesets/cli": "^2.29.7",
     "@types/chroma-js": "^3.1.1",
     "@types/node": "^24.9.1",
-    "@types/three": "^0.180.0",
+    "@types/three": "^0.181.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
     "vitest": "^4.0.3"
@@ -38,12 +38,12 @@
   "dependencies": {
     "@duckdb/duckdb-wasm": "1.30.0",
     "@preact/signals-core": "^1.12.1",
-    "@uwdata/flechette": "^2.2.4",
+    "@uwdata/flechette": "^2.2.6",
     "chroma-js": "^3.1.2",
     "gl-matrix": "3.4.3",
     "n8ao": "^1.10.1",
     "postprocessing": "^6.37.8",
-    "three": "^0.180.0"
+    "three": "^0.181.0"
   },
   "packageManager": "pnpm@10.3.0"
 }
