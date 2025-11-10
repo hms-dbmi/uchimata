@@ -38,12 +38,12 @@
   "dependencies": {
     "@duckdb/duckdb-wasm": "1.30.0",
     "@preact/signals-core": "^1.12.1",
-    "@uwdata/flechette": "^2.2.4",
+    "@uwdata/flechette": "^2.2.6",
     "chroma-js": "^3.1.2",
     "gl-matrix": "3.4.3",
     "n8ao": "^1.10.1",
-    "postprocessing": "^6.37.8",
-    "three": "^0.180.0"
+    "postprocessing": "^6.38.0",
+    "three": "^0.181.1"
   },
   "packageManager": "pnpm@10.3.0"
 }
