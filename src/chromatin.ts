@@ -17,7 +17,11 @@ import type { DrawableMarkSegment } from "./renderer/renderer-types";
 import { divideRange, isBrewerPaletteName, valMap } from "./utils";
 
 /**
- * Simple initializer for the ChromatinScene structure.
+ * Initializes a new empty chromatin scene.
+ *
+ * @returns A new ChromatinScene object with an empty structures array
+ * @example
+ * const scene = initScene();
  */
 export function initScene(): ChromatinScene {
   return {
@@ -25,6 +29,17 @@ export function initScene(): ChromatinScene {
   };
 }
 
+/**
+ * Adds a chromatin structure to the scene with specified view configuration.
+ *
+ * @param scene - The chromatin scene to add the structure to
+ * @param structure - The chromatin structure data to add
+ * @param viewConfig - Optional visual configuration (scale, color, mark type, etc.). If not provided, defaults to scale: 0.0001 and color: "red"
+ * @returns A new ChromatinScene with the structure added
+ * @example
+ * const scene = initScene();
+ * const updatedScene = addStructureToScene(scene, structure, { scale: 0.005, color: "blue" });
+ */
 export function addStructureToScene(
   scene: ChromatinScene,
   structure: ChromatinStructure,
@@ -59,7 +74,15 @@ export type DisplayOptions = {
 };
 
 /**
- * Starts rendering of a scene. Returns a renderer object and a canvas.
+ * Renders a chromatin scene and returns the renderer and canvas element.
+ *
+ * @param scene - The chromatin scene to render
+ * @param options - Display options including alwaysRedraw, withHUD, and hoverEffect flags
+ * @param targetCanvas - Optional canvas element to render into. If not provided, a new canvas will be created
+ * @returns A tuple containing the renderer instance and the canvas/container element
+ * @example
+ * const [renderer, canvas] = display(scene, { alwaysRedraw: true, withHUD: false, hoverEffect: false });
+ * document.body.appendChild(canvas);
  */
 export function display(
   scene: ChromatinScene,
@@ -105,6 +128,14 @@ export function display(
   return [renderer, elementToReturn];
 }
 
+/**
+ * Updates the renderer with a new scene by clearing the existing scene and rebuilding it.
+ *
+ * @param renderer - The renderer instance to update
+ * @param newScene - The new scene to render
+ * @example
+ * updateScene(renderer, newScene);
+ */
 export function updateScene(
   renderer: ChromatinBasicRenderer,
   newScene: ChromatinScene,

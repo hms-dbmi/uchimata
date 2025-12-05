@@ -2,9 +2,14 @@ import type { Table } from "@uwdata/flechette";
 import type { vec3 } from "gl-matrix";
 
 /**
- * ChromatinStructure represents chromatin polymer data.
- * At the very least the `data` (Table) should have x, y, z columns (this represents what we originally called a chunk).
- * Additional columns are needed for filtering, such as selecting by chromosome or genomic coordinates.
+ * Represents a 3D chromatin structure with spatial coordinates and optional metadata.
+ *
+ * The data table must contain at minimum x, y, z columns for spatial coordinates.
+ * Additional columns (chr, coord, index, etc.) enable filtering and selection operations.
+ *
+ * @property data - Arrow Table containing at minimum x, y, z coordinate columns
+ * @property name - Optional name identifier for the structure
+ * @property assembly - Optional genome assembly identifier (e.g., "hg38", "mm10")
  */
 export type ChromatinStructure = {
   data: Table;
@@ -16,7 +21,9 @@ export type ChromatinStructure = {
 };
 
 /**
- * ChromatinScene carries the structures to show
+ * Represents a complete scene containing one or more chromatin structures with their visual configurations.
+ *
+ * @property structures - Array of displayable structures, each with data and view configuration
  */
 export type ChromatinScene = {
   structures: DisplayableStructure[];
