@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest --pool=forks",
     "typecheck": "tsc",
-    "fix": "biome check --write ."
+    "fix": "biome check --write .",
+    "docs": "typedoc"
   },
   "files": [
     "dist"
@@ -31,6 +32,8 @@
     "@types/chroma-js": "^3.1.1",
     "@types/node": "^24.9.1",
     "@types/three": "^0.180.0",
+    "typedoc": "^0.28.15",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
     "vitest": "^4.0.3"

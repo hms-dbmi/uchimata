@@ -8,6 +8,15 @@ import { computeNormalizationFactor, type LoadOptions } from "./loader-utils";
  * Inspired by: https://github.com/vega/vega-loader-arrow/blob/main/src/arrow.js
  */
 
+/**
+ * Loads a 3D chromatin structure from a URL containing Apache Arrow IPC data.
+ *
+ * @param url - URL to fetch the Arrow IPC file from
+ * @param options - Loading options for centering and normalization
+ * @returns Promise resolving to a ChromatinStructure, or undefined if loading fails
+ * @example
+ * const structure = await loadFromURL("https://example.com/structure.arrow", { center: true, normalize: true });
+ */
 export async function loadFromURL(
   url: string,
   options: LoadOptions,
@@ -205,7 +214,19 @@ function processTableAsStructure(
 }
 
 /**
- * Loads a 3D chromatin structure from memory using Apache Arrow
+ * Loads a 3D chromatin structure from an ArrayBuffer containing Apache Arrow IPC data.
+ *
+ * Processes the data by:
+ * - Saving original x, y, z coordinates as xRaw, yRaw, zRaw
+ * - Optionally centering coordinates (subtracting mean)
+ * - Optionally normalizing coordinates to a standard scale
+ * - Generating an index column if not present
+ *
+ * @param buffer - ArrayBuffer containing Arrow IPC formatted data with at minimum x, y, z columns
+ * @param options - Optional loading options for centering and normalization (default: { center: true, normalize: true })
+ * @returns A ChromatinStructure object with processed data
+ * @example
+ * const structure = load(arrayBuffer, { center: true, normalize: true });
  */
 export function load(
   buffer: ArrayBuffer,

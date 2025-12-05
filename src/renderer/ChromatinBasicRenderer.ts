@@ -17,11 +17,21 @@ import { computeTubes, decideGeometry } from "./render-utils";
 import type { DrawableMarkSegment } from "./renderer-types";
 
 /**
- * Basic implementation of a 3d chromatin renderer. Essentially just wraps THREE.WebGLRenderer but provides semantics for building chromatin visualization.
+ * A 3D renderer for chromatin structures built on THREE.js with post-processing effects.
  *
- * Important methods:
- *  - addSegments: adding segments of chromatin with unified visual properties (e.g., specified by a grammar)
- *  - buildStructures, buildPart: turns segments with specific visual attributes into THREE primitives
+ * Provides high-level methods for visualizing chromatin data with features including:
+ * - Instanced rendering for performance
+ * - Ambient occlusion (SSAO) for depth perception
+ * - Anti-aliasing (SMAA)
+ * - Interactive hover effects
+ * - Orbit camera controls
+ *
+ * @example
+ * const renderer = new ChromatinBasicRenderer({ alwaysRedraw: true, hoverEffect: false });
+ * renderer.addSegments(segments);
+ * renderer.startDrawing();
+ * const canvas = renderer.getCanvasElement();
+ * document.body.appendChild(canvas);
  */
 export class ChromatinBasicRenderer {
   markSegments: DrawableMarkSegment[] = [];
