@@ -76,7 +76,7 @@ export class ChromatinBasicRenderer {
       ssaoParams = {},
     } = params || {};
 
-    const { intensity = 3.0, radius = 0.02, falloff = 1.0 } = ssaoParams;
+    const { intensity = 5.0, radius = 0.02, falloff = 2 } = ssaoParams;
 
     this.renderer = new THREE.WebGLRenderer({
       powerPreference: "high-performance",
