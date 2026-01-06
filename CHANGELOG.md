@@ -1,5 +1,11 @@
 # uchimata
 
+## 0.4.3
+
+### Patch Changes
+
+- e2614c9: Change SSAO default params
+
 ## 0.4.2
 
 ### Patch Changes
