@@ -1,5 +1,11 @@
 # uchimata
 
+## 0.4.2
+
+### Patch Changes
+
+- cc136b0: Add display options to control SSAO parameters
+
 ## 0.4.1
 
 ### Patch Changes
