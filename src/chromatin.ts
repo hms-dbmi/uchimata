@@ -71,6 +71,12 @@ export type DisplayOptions = {
   alwaysRedraw?: boolean;
   withHUD?: boolean;
   hoverEffect?: boolean;
+  ssaoIntensity?: number;
+  ssaoParams?: {
+    radius?: number;
+    intensity?: number;
+    falloff?: number;
+  };
 };
 
 /**
@@ -93,6 +99,7 @@ export function display(
     alwaysRedraw: options.alwaysRedraw,
     hoverEffect: options.hoverEffect,
     canvas: targetCanvas,
+    ssaoParams: options.ssaoParams,
   });
   buildStructures(scene.structures, renderer);
   renderer.startDrawing();

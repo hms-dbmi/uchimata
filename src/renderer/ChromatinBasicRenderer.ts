@@ -67,12 +67,16 @@ export class ChromatinBasicRenderer {
     canvas?: HTMLCanvasElement;
     alwaysRedraw?: boolean;
     hoverEffect?: boolean;
+    ssaoParams?: { radius?: number; intensity?: number; falloff?: number };
   }) {
     const {
       canvas = undefined,
       alwaysRedraw = true,
       hoverEffect = false,
+      ssaoParams = {},
     } = params || {};
+
+    const { intensity = 3.0, radius = 0.02, falloff = 1.0 } = ssaoParams;
 
     this.renderer = new THREE.WebGLRenderer({
       powerPreference: "high-performance",
@@ -108,16 +112,19 @@ export class ChromatinBasicRenderer {
     const w = 1920;
     const h = 1080;
     const n8aopass = new N8AOPostPass(this.scene, this.camera, w, h);
-    n8aopass.configuration.aoRadius = 0.1;
-    n8aopass.configuration.distanceFalloff = 1.0;
-    n8aopass.configuration.intensity = 2.0;
+    n8aopass;
+    n8aopass.configuration.aoRadius = radius;
+    n8aopass.configuration.distanceFalloff = falloff;
+    n8aopass.configuration.intensity = intensity;
     this.composer.addPass(n8aopass);
 
+    //~ adding a second, coarser SSAO pass
+    //~ the parameters are computed from the first pass
     const n8aopassBigger = new N8AOPostPass(this.scene, this.camera, w, h);
-    n8aopassBigger.configuration.aoRadius = 1.0;
-    n8aopassBigger.configuration.distanceFalloff = 1.0;
-    n8aopassBigger.configuration.intensity = 2.0;
-    this.composer.addPass(n8aopass);
+    n8aopassBigger.configuration.aoRadius = radius * 10;
+    n8aopassBigger.configuration.distanceFalloff = falloff;
+    n8aopassBigger.configuration.intensity = 0.6;
+    // this.composer.addPass(n8aopassBigger);
 
     this.ssaoPasses = [n8aopass, n8aopassBigger];
 
