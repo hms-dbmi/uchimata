@@ -27,3 +27,5 @@ pnpm run docs
 Led by [David Kouřil](https://davidkouril.com) @ [HIDIVE lab](http://hidivelab.org) (Harvard Medical School).
 
 The name **uchimata** roughly abbreviates "**u**nderstanding **ch**romatin **i**n **m**odels **a**pproximating **t**hree-dimensional **a**rchitecture". The tool was previously known as *chromospace*.
+
+### Citation
