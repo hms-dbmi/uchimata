@@ -467,6 +467,49 @@ export class ChromatinBasicRenderer {
     this.composer.render();
   }
 
+  async screenshot(width: number, height: number) {
+    // Create offscreen canvas
+    const offscreenCanvas = new OffscreenCanvas(width, height);
+
+    // Create a separate renderer for offscreen rendering
+    const offscreenRenderer = new THREE.WebGLRenderer({
+      canvas: offscreenCanvas,
+      antialias: true,
+      preserveDrawingBuffer: true,
+    });
+
+    offscreenRenderer.setSize(width, height, false);
+    offscreenRenderer.setPixelRatio(1); // Control this separately
+
+    // // Copy settings from your main renderer if needed
+    // offscreenRenderer.setClearColor(renderer.getClearColor());
+    offscreenRenderer.setClearColor("#ff00ff");
+    offscreenRenderer.clear();
+    // offscreenRenderer.shadowMap.enabled = renderer.shadowMap.enabled;
+    //
+    // // Render the scene
+    // offscreenRenderer.render(scene, camera);
+    //
+    // Convert to blob
+    const blob = await offscreenCanvas.convertToBlob({
+      type: "image/png",
+    });
+
+    console.warn("ChromatinBasicRenderer.screenshot() is not implemented yet.");
+    // Download
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = `screenshot-${width}x${height}.png`;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    // Cleanup
+    offscreenRenderer.dispose();
+  }
+
   onMouseMove(event: MouseEvent) {
     event.preventDefault();
     const canvas = this.renderer.domElement;
