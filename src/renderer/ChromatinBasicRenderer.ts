@@ -474,28 +474,48 @@ export class ChromatinBasicRenderer {
     // Create a separate renderer for offscreen rendering
     const offscreenRenderer = new THREE.WebGLRenderer({
       canvas: offscreenCanvas,
-      antialias: true,
+      antialias: false,
       preserveDrawingBuffer: true,
+      stencil: false,
+      depth: false,
     });
 
     offscreenRenderer.setSize(width, height, false);
-    offscreenRenderer.setPixelRatio(1); // Control this separately
+    offscreenRenderer.setPixelRatio(1);
+    offscreenRenderer.setClearAlpha(0.0);
 
-    // // Copy settings from your main renderer if needed
-    // offscreenRenderer.setClearColor(renderer.getClearColor());
-    offscreenRenderer.setClearColor("#ff00ff");
-    offscreenRenderer.clear();
-    // offscreenRenderer.shadowMap.enabled = renderer.shadowMap.enabled;
-    //
-    // // Render the scene
-    // offscreenRenderer.render(scene, camera);
-    //
+    // Create EffectComposer for the offscreen renderer
+    const offscreenComposer = new EffectComposer(offscreenRenderer);
+    offscreenComposer.addPass(new RenderPass(this.scene, this.camera));
+
+    // Add SSAO pass
+    const n8aopass = new N8AOPostPass(this.scene, this.camera, width, height);
+    const [mainPass] = this.ssaoPasses;
+    n8aopass.configuration.aoRadius = mainPass.configuration.aoRadius;
+    n8aopass.configuration.distanceFalloff = mainPass.configuration.distanceFalloff;
+    n8aopass.configuration.intensity = mainPass.configuration.intensity;
+    offscreenComposer.addPass(n8aopass);
+
+    // Add SMAA pass
+    offscreenComposer.addPass(
+      new EffectPass(
+        this.camera,
+        new SMAAEffect({
+          preset: SMAAPreset.ULTRA,
+        }),
+      ),
+    );
+
+    offscreenComposer.setSize(width, height);
+
+    // Render the scene with post-processing
+    offscreenComposer.render();
+
     // Convert to blob
     const blob = await offscreenCanvas.convertToBlob({
       type: "image/png",
     });
 
-    console.warn("ChromatinBasicRenderer.screenshot() is not implemented yet.");
     // Download
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -507,6 +527,7 @@ export class ChromatinBasicRenderer {
     URL.revokeObjectURL(url);
 
     // Cleanup
+    offscreenComposer.dispose();
     offscreenRenderer.dispose();
   }
 
