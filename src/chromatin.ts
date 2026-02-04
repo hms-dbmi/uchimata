@@ -135,10 +135,6 @@ export function display(
   return [renderer, elementToReturn];
 }
 
-export function saveScreenshot() {
-  console.warn("Not implemented: saveScreenshot");
-}
-
 /**
  * Updates the renderer with a new scene by clearing the existing scene and rebuilding it.
  *
