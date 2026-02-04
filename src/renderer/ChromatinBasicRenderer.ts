@@ -12,6 +12,7 @@ import {
 } from "postprocessing";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { assert } from "../assert";
 import { decideVisualParametersBasedOn1DData } from "../utils";
 import { computeTubes, decideGeometry } from "./render-utils";
 import type { DrawableMarkSegment } from "./renderer-types";
@@ -467,10 +468,45 @@ export class ChromatinBasicRenderer {
     this.composer.render();
   }
 
-  async screenshot(width: number, height: number, quality: number = 1) {
+  async screenshot(options: {
+    width?: number;
+    height?: number;
+    quality?: number;
+  } = {}) {
+    const { quality = 1 } = options;
+
+    // Calculate dimensions based on what's provided
+    const canvas = this.renderer.domElement;
+    const canvasAspect = canvas.clientWidth / canvas.clientHeight;
+
+    let width: number;
+    let height: number;
+
+    if (options.width !== undefined && options.height !== undefined) {
+      // Both provided - use exact dimensions
+      width = options.width;
+      height = options.height;
+    } else if (options.width !== undefined) {
+      // Only width provided - calculate height from canvas aspect
+      width = options.width;
+      height = Math.round(width / canvasAspect);
+    } else if (options.height !== undefined) {
+      // Only height provided - calculate width from canvas aspect
+      height = options.height;
+      width = Math.round(height * canvasAspect);
+    } else {
+      // Neither provided - use canvas dimensions
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+    }
+
     // Render at higher resolution for supersampling
     const renderWidth = Math.floor(width * quality);
     const renderHeight = Math.floor(height * quality);
+
+    // Adjust camera aspect ratio for screenshot dimensions
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
 
     // Create offscreen canvas at high resolution
     const offscreenCanvas = new OffscreenCanvas(renderWidth, renderHeight);
@@ -501,7 +537,8 @@ export class ChromatinBasicRenderer {
     );
     const [mainPass] = this.ssaoPasses;
     n8aopass.configuration.aoRadius = mainPass.configuration.aoRadius;
-    n8aopass.configuration.distanceFalloff = mainPass.configuration.distanceFalloff;
+    n8aopass.configuration.distanceFalloff =
+      mainPass.configuration.distanceFalloff;
     n8aopass.configuration.intensity = mainPass.configuration.intensity;
     // Higher quality SSAO for screenshots
     n8aopass.configuration.aoSamples = quality > 1 ? 32 : 16;
@@ -528,11 +565,10 @@ export class ChromatinBasicRenderer {
     if (quality > 1) {
       const finalCanvas = new OffscreenCanvas(width, height);
       const ctx = finalCanvas.getContext("2d");
-      if (ctx) {
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-        ctx.drawImage(offscreenCanvas, 0, 0, width, height);
-      }
+      assert(ctx, "Failed to get 2D context for downscaling");
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(offscreenCanvas, 0, 0, width, height);
       finalBlob = await finalCanvas.convertToBlob({ type: "image/png" });
     } else {
       finalBlob = await offscreenCanvas.convertToBlob({ type: "image/png" });
