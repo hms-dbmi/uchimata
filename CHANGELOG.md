@@ -1,5 +1,11 @@
 # uchimata
 
+## 0.4.4
+
+### Patch Changes
+
+- 1d42051: feat: high-res screenshot
+
 ## 0.4.3
 
 ### Patch Changes
