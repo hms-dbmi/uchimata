@@ -40,6 +40,4 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: biomejs/setup-biome@v2
-        with:
-          version: "2.0.0"
       - run: biome ci .
