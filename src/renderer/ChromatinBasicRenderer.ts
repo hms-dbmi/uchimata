@@ -467,33 +467,45 @@ export class ChromatinBasicRenderer {
     this.composer.render();
   }
 
-  async screenshot(width: number, height: number) {
-    // Create offscreen canvas
-    const offscreenCanvas = new OffscreenCanvas(width, height);
+  async screenshot(width: number, height: number, quality: number = 1) {
+    // Render at higher resolution for supersampling
+    const renderWidth = Math.floor(width * quality);
+    const renderHeight = Math.floor(height * quality);
+
+    // Create offscreen canvas at high resolution
+    const offscreenCanvas = new OffscreenCanvas(renderWidth, renderHeight);
 
     // Create a separate renderer for offscreen rendering
     const offscreenRenderer = new THREE.WebGLRenderer({
       canvas: offscreenCanvas,
-      antialias: false,
+      antialias: true,
       preserveDrawingBuffer: true,
-      stencil: false,
-      depth: false,
     });
 
-    offscreenRenderer.setSize(width, height, false);
+    offscreenRenderer.setSize(renderWidth, renderHeight, false);
     offscreenRenderer.setPixelRatio(1);
     offscreenRenderer.setClearAlpha(0.0);
 
-    // Create EffectComposer for the offscreen renderer
-    const offscreenComposer = new EffectComposer(offscreenRenderer);
+    // Create EffectComposer with multisampling for the offscreen renderer
+    const offscreenComposer = new EffectComposer(offscreenRenderer, {
+      multisampling: quality > 1 ? 4 : 0,
+    });
     offscreenComposer.addPass(new RenderPass(this.scene, this.camera));
 
-    // Add SSAO pass
-    const n8aopass = new N8AOPostPass(this.scene, this.camera, width, height);
+    // Add SSAO pass with higher quality settings
+    const n8aopass = new N8AOPostPass(
+      this.scene,
+      this.camera,
+      renderWidth,
+      renderHeight,
+    );
     const [mainPass] = this.ssaoPasses;
     n8aopass.configuration.aoRadius = mainPass.configuration.aoRadius;
     n8aopass.configuration.distanceFalloff = mainPass.configuration.distanceFalloff;
     n8aopass.configuration.intensity = mainPass.configuration.intensity;
+    // Higher quality SSAO for screenshots
+    n8aopass.configuration.aoSamples = quality > 1 ? 32 : 16;
+    n8aopass.configuration.denoiseSamples = quality > 1 ? 16 : 8;
     offscreenComposer.addPass(n8aopass);
 
     // Add SMAA pass
@@ -506,18 +518,28 @@ export class ChromatinBasicRenderer {
       ),
     );
 
-    offscreenComposer.setSize(width, height);
+    offscreenComposer.setSize(renderWidth, renderHeight);
 
     // Render the scene with post-processing
     offscreenComposer.render();
 
-    // Convert to blob
-    const blob = await offscreenCanvas.convertToBlob({
-      type: "image/png",
-    });
+    // Downscale if quality > 1
+    let finalBlob: Blob;
+    if (quality > 1) {
+      const finalCanvas = new OffscreenCanvas(width, height);
+      const ctx = finalCanvas.getContext("2d");
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(offscreenCanvas, 0, 0, width, height);
+      }
+      finalBlob = await finalCanvas.convertToBlob({ type: "image/png" });
+    } else {
+      finalBlob = await offscreenCanvas.convertToBlob({ type: "image/png" });
+    }
 
     // Download
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(finalBlob);
     const link = document.createElement("a");
     link.download = `screenshot-${width}x${height}.png`;
     link.href = url;
