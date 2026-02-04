@@ -468,11 +468,9 @@ export class ChromatinBasicRenderer {
     this.composer.render();
   }
 
-  async screenshot(options: {
-    width?: number;
-    height?: number;
-    quality?: number;
-  } = {}) {
+  async screenshot(
+    options: { width?: number; height?: number; quality?: number } = {},
+  ) {
     const { quality = 1 } = options;
 
     // Calculate dimensions based on what's provided

@@ -21,9 +21,6 @@ export const recenter = (originalPositions: vec3[]): vec3[] => {
     vec3.add(vec3.create(), bbMax, bbMin),
     0.5,
   );
-  const bbSides = vec3.sub(vec3.create(), bbMax, bbMin);
-  bbSides.forEach((v: number) => Math.abs(v));
-
   const positionsCentered = positions.map((a) =>
     vec3.sub(vec3.create(), a, bbCenter),
   );

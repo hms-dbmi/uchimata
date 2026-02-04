@@ -329,7 +329,9 @@ describe("resolveColor", () => {
     expect(Array.isArray(result)).toBe(true);
     assert(Array.isArray(result));
     expect(result.length).toBe(4);
-    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => {
+      expect(chroma.valid(color)).toBe(true);
+    });
   });
 
   test("should resolve colors from numeric values array with string colorScale", () => {
@@ -345,7 +347,9 @@ describe("resolveColor", () => {
     expect(Array.isArray(result)).toBe(true);
     assert(Array.isArray(result));
     expect(result).toHaveLength(4);
-    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => {
+      expect(chroma.valid(color)).toBe(true);
+    });
   });
 
   test("should resolve colors from categorical field", () => {
@@ -359,7 +363,9 @@ describe("resolveColor", () => {
     expect(Array.isArray(result)).toBe(true);
     assert(Array.isArray(result));
     expect(result).toHaveLength(4);
-    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => {
+      expect(chroma.valid(color)).toBe(true);
+    });
   });
 
   test("should resolve colors from categorical values array", () => {
@@ -373,7 +379,9 @@ describe("resolveColor", () => {
     expect(Array.isArray(result)).toBe(true);
     assert(Array.isArray(result));
     expect(result).toHaveLength(4);
-    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => {
+      expect(chroma.valid(color)).toBe(true);
+    });
   });
 
   test("should use default color range when min/max not provided for numeric scale", () => {
@@ -387,7 +395,9 @@ describe("resolveColor", () => {
     expect(Array.isArray(result)).toBe(true);
     assert(Array.isArray(result));
     expect(result).toHaveLength(4);
-    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => {
+      expect(chroma.valid(color)).toBe(true);
+    });
   });
 
   test("should handle non-existent field gracefully", () => {
@@ -424,7 +434,9 @@ describe("resolveColor", () => {
     expect(Array.isArray(result)).toBe(true);
     assert(Array.isArray(result));
     expect(result).toHaveLength(4);
-    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => {
+      expect(chroma.valid(color)).toBe(true);
+    });
   });
 
   test("should handle categorical colors when enough colors provided", () => {
@@ -438,7 +450,9 @@ describe("resolveColor", () => {
     expect(Array.isArray(result)).toBe(true);
     assert(Array.isArray(result));
     expect(result).toHaveLength(4);
-    result.forEach((color) => expect(chroma.valid(color)).toBe(true));
+    result.forEach((color) => {
+      expect(chroma.valid(color)).toBe(true);
+    });
   });
 
   test("should throw when insufficient colors for categorical values", () => {
