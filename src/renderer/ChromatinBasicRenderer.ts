@@ -1,7 +1,7 @@
 import type { Color as ChromaColor } from "chroma-js";
 import chroma from "chroma-js";
 import type { vec3 } from "gl-matrix";
-// @ts-ignore
+// @ts-expect-error
 import { N8AOPostPass } from "n8ao";
 import {
   EffectComposer,

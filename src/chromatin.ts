@@ -188,7 +188,7 @@ export function resolveScale(table: Table, vc: ViewConfig): number | number[] {
     }
     assert(
       values.length >= table.numRows,
-      "array length of \`scale.values\` in view config must be equal or larger than the number of bins",
+      "array length of `scale.values` in view config must be equal or larger than the number of bins",
     );
     scale = mapValuesToScale(values, vc.scale);
   }
@@ -333,7 +333,7 @@ export function resolveColor(
     }
     assert(
       vc.color.values.length >= table.numRows,
-      "array length of \`color.values\` in view config must be equal or larger than the number of bins",
+      "array length of `color.values` in view config must be equal or larger than the number of bins",
     );
     color = mapValuesToColors(vc.color.values, vc.color);
   }
