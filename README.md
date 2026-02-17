@@ -27,3 +27,8 @@ pnpm run docs
 Led by [David Kouřil](https://davidkouril.com) @ [HIDIVE lab](http://hidivelab.org) (Harvard Medical School).
 
 The name **uchimata** roughly abbreviates "**u**nderstanding **ch**romatin **i**n **m**odels **a**pproximating **t**hree-dimensional **a**rchitecture". The tool was previously known as *chromospace*.
+
+### Citation
+If you use uchimata, please consider citing our Bioinformatics paper:
+
+> David Kouřil, Trevor Manz, Tereza Clarence, Nils Gehlenborg. "Uchimata: a toolkit for visualization of 3D genome structures on the web and in computational notebooks", Bioinformatics **42**(2):*btag035* (2026), [doi.org/10.1093/bioinformatics/btag035](https://doi.org/10.1093/bioinformatics/btag035)

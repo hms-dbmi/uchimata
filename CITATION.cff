@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+title: uchimata
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: David
+    family-names: Kouřil
+    email: david.kouril@gmail.com
+    affiliation: Harvard Medical School
+    orcid: 'https://orcid.org/0000-0003-4043-3487'
+  - given-names: Trevor
+    family-names: Manz
+    affiliation: Harvard Medical School
+    orcid: 'https://orcid.org/0000-0001-7694-5164'
+repository-code: 'https://github.com/hms-dbmi/dvdkouril'
+url: 'http://hms-dbmi.github.io/uchimata/'
+license: MIT
+preferred-citation:
+  type: article
+  title: "Uchimata: a toolkit for visualization of 3D genome structures on the web and in computational notebooks"
+  authors:
+    - given-names: "David"
+      family-names: "Kouřil"
+      orcid: "https://orcid.org/0000-0003-4043-3487"
+      affiliation: "Harvard Medical School"
+    - given-names: "Trevor"
+      family-names: "Manz"
+      orcid: "https://orcid.org/0000-0001-7694-5164"
+      affiliation: "Harvard Medical School"
+    - given-names: "Tereza"
+      family-names: "Clarence"
+      orcid: "https://orcid.org/0000-0002-0099-2797"
+      affiliation: "Icahn School of Medicine at Mount Sinai"
+    - given-names: "Nils"
+      family-names: "Gehlenborg"
+      affiliation: "Harvard Medical School"
+      orcid: "https://orcid.org/0000-0003-0327-8297"
+  doi: "10.1093/bioinformatics/btag035"
+  journal: "Bioinformatics"
+  month: 2
+  year: 2026
+  volume: 42
+  issue: 2
+
