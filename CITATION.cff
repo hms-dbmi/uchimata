@@ -22,7 +22,7 @@ preferred-citation:
   title: "Uchimata: a toolkit for visualization of 3D genome structures on the web and in computational notebooks"
   authors:
     - given-names: "David"
-      family-names: "Kouril"
+      family-names: "Kouřil"
       orcid: "https://orcid.org/0000-0003-4043-3487"
       affiliation: "Harvard Medical School"
     - given-names: "Trevor"
@@ -39,5 +39,8 @@ preferred-citation:
       orcid: "https://orcid.org/0000-0003-0327-8297"
   doi: "10.1093/bioinformatics/btag035"
   journal: "Bioinformatics"
-  month: 1
+  month: 2
   year: 2026
+  volume: 42
+  issue: 2
+

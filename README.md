@@ -31,4 +31,4 @@ The name **uchimata** roughly abbreviates "**u**nderstanding **ch**romatin **i**
 ### Citation
 If you use uchimata, please consider citing our Bioinformatics paper:
 
-> David Kouřil, Trevor Manz, Tereza Clarence, Nils Gehlenborg. "Uchimata: a toolkit for visualization of 3D genome structures on the web and in computational notebooks", Bioinformatics *btag035* (2026), [doi.org/10.1093/bioinformatics/btag035](https://doi.org/10.1093/bioinformatics/btag035)
+> David Kouřil, Trevor Manz, Tereza Clarence, Nils Gehlenborg. "Uchimata: a toolkit for visualization of 3D genome structures on the web and in computational notebooks", Bioinformatics **42**(2):*btag035* (2026), [doi.org/10.1093/bioinformatics/btag035](https://doi.org/10.1093/bioinformatics/btag035)
