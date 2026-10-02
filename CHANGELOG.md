@@ -1,5 +1,11 @@
 # uchimata
 
+## 0.4.5
+
+### Patch Changes
+
+- f979376: fix: bounding box computation when positions are negative
+
 ## 0.4.4
 
 ### Patch Changes
