@@ -10,11 +10,19 @@ export const recenter = (originalPositions: vec3[]): vec3[] => {
 
   const bbMax = positions.reduce(
     (a, b) => vec3.max(vec3.create(), a, b),
-    vec3.fromValues(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE),
+    vec3.fromValues(
+      Number.NEGATIVE_INFINITY,
+      Number.NEGATIVE_INFINITY,
+      Number.NEGATIVE_INFINITY,
+    ),
   );
   const bbMin = positions.reduce(
     (a, b) => vec3.min(vec3.create(), a, b),
-    vec3.fromValues(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE),
+    vec3.fromValues(
+      Number.POSITIVE_INFINITY,
+      Number.POSITIVE_INFINITY,
+      Number.POSITIVE_INFINITY,
+    ),
   );
   const bbCenter = vec3.scale(
     vec3.create(),
@@ -42,11 +50,19 @@ export const normalize = (positions: vec3[], factor?: number): vec3[] => {
 export const computeNormalizationFactor = (positions: vec3[]): number => {
   const bbMax = positions.reduce(
     (a, b) => vec3.max(vec3.create(), a, b),
-    vec3.fromValues(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE),
+    vec3.fromValues(
+      Number.NEGATIVE_INFINITY,
+      Number.NEGATIVE_INFINITY,
+      Number.NEGATIVE_INFINITY,
+    ),
   );
   const bbMin = positions.reduce(
     (a, b) => vec3.min(vec3.create(), a, b),
-    vec3.fromValues(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE),
+    vec3.fromValues(
+      Number.POSITIVE_INFINITY,
+      Number.POSITIVE_INFINITY,
+      Number.POSITIVE_INFINITY,
+    ),
   );
   const bbCenter = vec3.scale(
     vec3.create(),

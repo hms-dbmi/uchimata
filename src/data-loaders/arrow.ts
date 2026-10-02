@@ -37,8 +37,8 @@ export async function loadFromURL(
 }
 
 function recenterSingleColumn(col: number[]): number[] {
-  const minVal = col.reduce((a, b) => Math.min(a, b), Number.MAX_VALUE);
-  const maxVal = col.reduce((a, b) => Math.max(a, b), Number.MIN_VALUE);
+  const minVal = col.reduce((a, b) => Math.min(a, b), Number.POSITIVE_INFINITY);
+  const maxVal = col.reduce((a, b) => Math.max(a, b), Number.NEGATIVE_INFINITY);
   const center = (minVal + maxVal) / 2;
 
   const centeredCol = col.map((v) => v - center);
