@@ -28,3 +28,6 @@ test-data/
 
 # Observable notebook for testing
 docs/docs/scratchpad.html
+
+# todos
+CODEBASE_AUDIT.md
