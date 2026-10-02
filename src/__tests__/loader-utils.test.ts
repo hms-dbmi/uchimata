@@ -1,6 +1,9 @@
 import { vec3 } from "gl-matrix";
 import { describe, expect, test } from "vitest";
-import { computeNormalizationFactor, recenter } from "../data-loaders/loader-utils";
+import {
+  computeNormalizationFactor,
+  recenter,
+} from "../data-loaders/loader-utils";
 
 describe("loader-utils bounding box calculations", () => {
   test("recenters coordinates correctly when all coordinates are negative", () => {
