@@ -8,7 +8,7 @@ This plan describes the initial migration of the Python widget repository into t
 - Keep the JavaScript visualization library as the source of truth for rendering behavior.
 - Package the Python widget frontend from the local JavaScript code instead of importing `uchimata` from `esm.sh`.
 - Publish a PyPI package that includes a prebuilt, self-contained widget frontend artifact.
-- Keep npm and PyPI package versions and release workflows independent.
+- Publish npm and PyPI packages under a single shared version, from a single release flow.
 - Preserve the current JavaScript repository structure as much as possible.
 
 ## Non-goals for the first merge
@@ -32,8 +32,8 @@ The first migration is about repository, packaging, CI, and release integration 
 - The Python widget frontend should be bundled from local JavaScript code, not loaded from `esm.sh`.
 - The PyPI release should include one self-contained generated `widget.js` file. "Self-contained" means the Uchimata JavaScript code and its JS dependencies are bundled; the DuckDB-wasm engine (wasm + worker) used by JS selections is intentionally still fetched lazily from jsdelivr to keep bundle size down. The current widget frontend does not call JS selections (Python-side selections use Python `duckdb`), so the widget does not trigger that fetch.
 - The generated widget frontend artifact should not be committed.
-- npm and PyPI versions should remain independent.
-- npm and PyPI release workflows should remain independent.
+- npm and PyPI packages share a single version (ADR 0006). Changesets decides it; `pyproject.toml` reads it from the root `package.json`.
+- One release flow publishes both npm and PyPI; one `uchimata@<version>` tag covers both. The first shared version is `0.5.0` (npm is at 0.4.4, PyPI at 0.4.0).
 - `uchimata-py` history does not need to be preserved; copying files in one commit is acceptable.
 - The old `uchimata-py` repository should get a README notice and then be archived on GitHub.
 - Root-level Python project management files are acceptable.
@@ -44,10 +44,11 @@ The first migration is about repository, packaging, CI, and release integration 
 Related ADRs:
 
 - [0001: Package the Python widget with local JavaScript](./adr.md#0001-package-the-python-widget-with-local-javascript)
-- [0002: Keep JavaScript and Python package versions independent](./adr.md#0002-keep-javascript-and-python-package-versions-independent)
+- [0002: Keep JavaScript and Python package versions independent](./adr.md#0002-keep-javascript-and-python-package-versions-independent) (superseded by 0006)
 - [0003: Ship the prebuilt widget frontend in the sdist, without JavaScript sources](./adr.md#0003-ship-the-prebuilt-widget-frontend-in-the-sdist-without-javascript-sources)
 - [0004: Import the JavaScript visualization library into the widget frontend by relative path](./adr.md#0004-import-the-javascript-visualization-library-into-the-widget-frontend-by-relative-path)
-- [0005: Tag Python releases with a separate `py-v` prefix](./adr.md#0005-tag-python-releases-with-a-separate-py-v-prefix)
+- [0005: Tag Python releases with a separate `py-v` prefix](./adr.md#0005-tag-python-releases-with-a-separate-py-v-prefix) (superseded by 0006)
+- [0006: Publish the JavaScript library and the Python widget under a single version](./adr.md#0006-publish-the-javascript-library-and-the-python-widget-under-a-single-version)
 
 ## Target repository shape
 
@@ -154,6 +155,18 @@ Other `pyproject.toml` changes needed because it now lives at the root:
 
 - `readme = "uchimata-py/README.md"`. The old `readme = "README.md"` would resolve to the JavaScript README and put it on the PyPI page.
 - `project.urls` point to `hms-dbmi/uchimata`.
+- Replace the static `version` with a dynamic one read from the root `package.json` (ADR 0006):
+
+  ```toml
+  [project]
+  dynamic = ["version"]
+
+  [tool.hatch.version]
+  path = "package.json"
+  pattern = '"version": "(?P<version>[^"]+)"'
+  ```
+
+  Verify that building the wheel from the sdist still resolves the version (hatch normally uses the sdist's `PKG-INFO`); if not, add `package.json` to the sdist `only-include`.
 - Add `[tool.pytest.ini_options] testpaths = ["uchimata-py/tests"]` so pytest doesn't walk the whole repo.
 - Rename the deprecated `[tool.uv] dev-dependencies` to `[dependency-groups] dev = [...]`.
 - Remove the `"uchimata"` dev dependency and its `[tool.uv.sources] uchimata = { workspace = true }` self-reference; `uv sync` already installs the root project in editable mode.
@@ -246,7 +259,7 @@ Decided: Python build output goes to `uchimata-py/dist/`, not the root `dist/`. 
 uv build --out-dir uchimata-py/dist --clear
 ```
 
-Use this in CI, the PyPI workflow, and contributor docs (optionally wrapped as a `build:py` script in the root `package.json`). Also set `[tool.hatch.build] directory = "uchimata-py/dist"` so `hatch build` matches. The existing `dist` pattern in `.gitignore` already covers `uchimata-py/dist/`.
+Use this in CI, the PyPI job in `release.yml`, and contributor docs (optionally wrapped as a `build:py` script in the root `package.json`). Also set `[tool.hatch.build] directory = "uchimata-py/dist"` so `hatch build` matches. The existing `dist` pattern in `.gitignore` already covers `uchimata-py/dist/`.
 
 The widget Vite config must not copy `rollupOptions.external: ["three"]` from `vite.config.ts`: `widget.js` has to bundle `three`.
 
@@ -274,36 +287,34 @@ Add at least one integration/package smoke check:
 - build a wheel from the sdist in an environment without Node, install it into a clean venv, and import the package;
 - ideally run Python tests against the generated frontend.
 
-### 8. Keep release workflows independent
+### 8. Single release flow for npm and PyPI
 
-#### npm
+Both packages share one version (ADR 0006), so one release flow publishes both.
 
-Keep the existing npm/Changesets release flow mostly unchanged. It should publish only the JavaScript package.
+#### Versioning with Changesets
+
+- Changesets stays the only place versions are decided. The version lives in the root `package.json`; `pyproject.toml` reads it from there (step 3), so there is nothing to keep in sync.
+- Python-only changes also get a changeset, filed under `uchimata` (both packages have that name). All changes go into the one root `CHANGELOG.md`.
+- A Python-only change therefore also produces an npm release without JavaScript changes. That is the accepted cost; its changelog entry should say so.
+- The first shared version is `0.5.0`. It is also the first PyPI release with the widget built from local JavaScript, which moves Python users from JS 0.3.3 (via esm.sh `^0.3.x`) to the current code; the release notes should mention that.
+
+#### Release workflow
+
+Extend the existing `release.yml` instead of adding a separate PyPI workflow:
+
+1. The existing job runs `changesets/action` as today; it publishes to npm and creates the `uchimata@<version>` tag and GitHub Release.
+2. A second job runs only when that step reports `published == 'true'`. It installs pnpm, Node and uv, runs `uv build --out-dir uchimata-py/dist --clear` (the build hook builds `widget.js`), and publishes the wheel and sdist to PyPI.
+3. Publish via PyPI Trusted Publishing (`id-token: write`); configure the trusted publisher on PyPI for `hms-dbmi/uchimata` and `release.yml`.
+
+If npm succeeds and PyPI fails, re-run the PyPI job. Neither registry accepts re-uploading a version, so a release that is actually broken is fixed with a new patch version.
+
+#### Keeping Changesets from publishing anything else
 
 `changeset publish` publishes every non-private package in the pnpm workspace whose version is not yet on npm. This already caused `docs/` to be published to npm as `uchimata-examples@0.0.1` (2025-08-28). Rules:
 
 - Every `package.json` other than the root one must set `"private": true` (`docs/package.json` fixed alongside this plan).
 - The widget frontend source stays outside the pnpm workspace and has no `package.json` of its own; its dev dependencies (e.g. `@anywidget/types`) go in the root `package.json`.
 - Do not copy any `package.json` from `uchimata-py` without making it private.
-
-#### PyPI
-
-Add a separate PyPI release workflow (`uchimata-py` currently has none; its one release, `v0.4.0`, was published manually). It should:
-
-1. build the widget frontend from local JavaScript;
-2. build wheel and sdist;
-3. publish only the Python package.
-
-Do not require npm and PyPI versions to match.
-
-Tagging and triggers (decided, see ADR 0005):
-
-- npm and PyPI packages are both named `uchimata`, and Changesets already tags npm releases as `uchimata@<version>`. Python releases therefore use a distinct prefix, `py-v<version>`, never `uchimata@…` or bare `v…`.
-- The PyPI workflow triggers only on `push: tags: ["py-v*"]` (plus `workflow_dispatch`). It must not trigger on `release: published`, because `changesets/action` creates a GitHub Release for every npm publish.
-- The job installs pnpm and Node in addition to uv, since building the sdist runs the widget build hook.
-- Publish via PyPI Trusted Publishing (`id-token: write`); configure the trusted publisher on PyPI for `hms-dbmi/uchimata` and the new workflow file.
-- Keep a static `version` in `pyproject.toml`; add a step that fails if the tag version does not match it.
-- Python GitHub Releases, if created, should not be marked "Latest", so the npm release keeps that badge.
 
 ### 9. Documentation updates
 
@@ -326,7 +337,7 @@ The root README can be refined separately after the migration mechanics are in p
 6. Add hatch build hook to generate/include the frontend artifact.
 7. Add/update `.gitignore`.
 8. Add CI Python jobs and integration smoke check.
-9. Add/adapt PyPI release workflow.
+9. Add the PyPI job to `release.yml` and switch Python to the shared version.
 10. Update docs and old-repo notice.
 
 ## Open implementation details

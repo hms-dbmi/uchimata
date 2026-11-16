@@ -6,6 +6,8 @@ The Python widget will use the JavaScript visualization library from the same re
 
 ## 0002: Keep JavaScript and Python package versions independent
 
+_Status: superseded by 0006._
+
 Uchimata is one product with JavaScript and Python entrypoints, but the npm and PyPI packages will keep independent version numbers. The Python widget depends on the JavaScript visualization API, so compatibility is still required, but independent versions allow ecosystem-specific releases instead of forcing every npm release and PyPI release to happen in lockstep.
 
 ## 0003: Ship the prebuilt widget frontend in the sdist, without JavaScript sources
@@ -18,4 +20,12 @@ The widget frontend source imports the JavaScript visualization library from `sr
 
 ## 0005: Tag Python releases with a separate `py-v` prefix
 
+_Status: superseded by 0006._
+
 The npm and PyPI packages are both named `uchimata`, and Changesets already tags npm releases as `uchimata@<version>`. Because the versions are independent (0002), Python release tags would clash with or be mistaken for npm ones. Python releases are therefore tagged `py-v<version>`, and the PyPI workflow triggers only on those tags. It does not trigger on GitHub Releases, because `changesets/action` creates one for every npm publish.
+
+## 0006: Publish the JavaScript library and the Python widget under a single version
+
+Uchimata is one product, and the JavaScript visualization library and the Python widget are two entrypoints to it, not separate products. Both packages therefore share one version number, which replaces 0002 (independent versions) and makes 0005 (`py-v` tags) unnecessary. Changesets remains the only place versions are decided: the version lives in the root `package.json`, `pyproject.toml` reads it from there, one release run publishes both npm and PyPI, and one `uchimata@<version>` tag covers both.
+
+Independent versions were rejected because the wheel bundles the JavaScript code (0001): every JavaScript change already changes the PyPI package, so separate numbers would only add bookkeeping about which JavaScript is inside which wheel. The accepted cost is that a Python-only change also produces an npm release with no JavaScript changes, and a breaking change on either side bumps the major version of both.
