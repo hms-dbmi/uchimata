@@ -16,17 +16,18 @@ dependencies = [
     "pandas>=2.0.3",
     "pyarrow>=17.0.0",
 ]
-readme = "README.md"
+readme = "uchimata-py/README.md"
 requires-python = ">=3.8"
 
 [project.urls]
-homepage = "https://github.com/hms-dbmi/uchimata-py"
+homepage = "https://github.com/hms-dbmi/uchimata"
+repository = "https://github.com/hms-dbmi/uchimata"
+issues = "https://github.com/hms-dbmi/uchimata/issues"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "jupyterlab>=4.2.5",
     "numpy",
-    "uchimata",
     "pyarrow",
     "watchfiles",
     "nbconvert",
@@ -34,8 +35,20 @@ dev-dependencies = [
     "pdoc>=14.7.0",
 ]
 
-[tool.uv.sources]
-uchimata = { workspace = true }
+[tool.hatch.build]
+# Python build output must not go to the root dist/, which is the npm package.
+directory = "uchimata-py/dist"
+# widget.js is generated and gitignored; without this hatch silently leaves it out.
+artifacts = ["uchimata-py/src/uchimata/static/widget.js"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["uchimata-py/src/uchimata"]
+
+[tool.hatch.build.targets.sdist]
+only-include = ["uchimata-py/src/uchimata", "uchimata-py/README.md", "LICENSE"]
+
+[tool.pytest.ini_options]
+testpaths = ["uchimata-py/tests"]
 
 [tool.marimo.runtime]
 output_max_bytes = 15_000_000
