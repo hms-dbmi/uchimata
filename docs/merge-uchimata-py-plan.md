@@ -38,8 +38,11 @@ The first migration is about repository, packaging, CI, and release integration 
 - The old `uchimata-py` repository should get a README notice and then be archived on GitHub.
 - Root-level Python project management files are acceptable.
 - Python package source can initially remain under `uchimata-py/src/uchimata`.
-- Continue using `hatchling` for Python builds, with a custom build hook if needed.
-- The sdist contains only the Python package and the prebuilt `widget.js`, not the JavaScript sources. Building a wheel from the sdist must not require Node or pnpm.
+- Continue using `hatchling` for Python builds, with a build hook that builds `widget.js` (preferably `hatch-jupyter-builder`, see step 5).
+- The sdist contains only the Python package and the prebuilt `widget.js`, not the JavaScript sources. Building a wheel from the sdist must not require Node or pnpm (ADR 0003).
+- The widget frontend source imports the JavaScript visualization library by relative path to `src/main.ts` (ADR 0004).
+- Python build output goes to `uchimata-py/dist/`, never the root `dist/` (step 6).
+- The old repository's GitHub Pages site is discarded (step 1).
 
 Related ADRs:
 
@@ -62,13 +65,19 @@ uchimata/
   src/                         # existing TypeScript source
   docs/
   examples/
+  vite.config.ts               # existing JS library build
+  vite.widget.config.ts        # widget frontend build (step 4)
   pyproject.toml               # moved/adapted from uchimata-py
   uv.lock                      # moved/adapted from uchimata-py
   uchimata-py/
+    README.md                  # PyPI long description
+    js/
+      widget.ts                # widget frontend source
     src/uchimata/              # Python package source
       __init__.py
       static/
         widget.js              # generated; ignored by Git
+    dist/                      # Python build output; ignored by Git
     tests/
     examples/
     docs/
@@ -184,7 +193,7 @@ import * as uchi from "https://esm.sh/uchimata@^0.3.x";
 
 Replace this with a local build/bundle flow:
 
-1. Maintain a widget frontend source file that imports the local JavaScript package/source.
+1. Maintain a widget frontend source file that imports the JavaScript visualization library from `src/main.ts`.
 2. Bundle that frontend into one self-contained ESM file.
 3. Write the generated artifact to:
 
@@ -209,23 +218,22 @@ pnpm dev:widget                      # rebuilds static/widget.js on changes to s
 ANYWIDGET_HMR=1 uv run jupyter lab   # anywidget reloads the frontend when widget.js changes
 ```
 
-- Drop the Deno tooling from `uchimata-py` (`deno.json`, `@deno-types` comments, the `localhost:5173` type import); the widget source is type-checked by the root `tsc` and linted by Biome. Add `@anywidget/types` as a devDependency.
+- Drop the Deno tooling from `uchimata-py` (`deno.json`, `@deno-types` comments, the `localhost:5173` type import); the widget source is linted by Biome and type-checked by `tsc` through a separate `tsconfig.widget.json`. Add `@anywidget/types` as a devDependency.
+- Why a separate tsconfig: Vite only strips types, it doesn't check them, so without `tsc` a JS API change that breaks the widget (e.g. `uchi.someFunction` renamed; `import * as uchi` makes that `undefined` at runtime, not a build error) would only show up in a notebook. The root `tsconfig.json` can't simply include `uchimata-py/js`: it emits declarations to `dist/`, and a second root would move them from `dist/main.d.ts` to `dist/src/main.d.ts`, breaking the `types` path the npm package publishes. `tsconfig.widget.json` (already added alongside this plan) extends the root config with `"noEmit": true` and `"include": ["uchimata-py/js"]`, which avoids both. When `uchimata-py/js/widget.ts` is added, change the `typecheck` script to `tsc && tsc -p tsconfig.widget.json`. Not before: with no input files, tsc fails with TS18003.
 - With `skip-if-exists` in the build hook, `uv sync` only builds `widget.js` when it is missing, so it can go stale after pulling JS changes. Contributor docs should say to run `pnpm build:widget` or keep `pnpm dev:widget` running.
-- Verify whether the `uchimata = { workspace = true }` self-reference in the old `[tool.uv]` config is still needed once `pyproject.toml` is at the root.
 - Verify that live reload works in marimo as well as Jupyter.
 
 ### 5. Build the Python widget frontend during package builds
 
-Use `hatchling`, likely with a custom build hook similar to `manzt/quak`.
+Use `hatchling` with a build hook, preferably `hatch-jupyter-builder` (see below), and a custom hook only if that doesn't cover the requirements.
 
 The build hook should:
 
-1. build the local JavaScript package as needed;
-2. bundle the Python widget frontend against that local JavaScript code;
-3. produce `uchimata-py/src/uchimata/static/widget.js` before wheel/sdist creation;
-4. ensure the generated file is included in the PyPI artifacts;
-5. skip the JavaScript build when `widget.js` already exists (the wheel-from-sdist case, where JS sources are absent);
-6. fail the build if `widget.js` is missing after the hook runs.
+1. run `pnpm build:widget`, which bundles the widget frontend together with `src/` (no separate build of the library's `dist/` is needed, see ADR 0004);
+2. produce `uchimata-py/src/uchimata/static/widget.js` before sdist and wheel creation;
+3. ensure the generated file is included in the PyPI artifacts;
+4. skip the JavaScript build when `widget.js` already exists (the wheel-from-sdist case, where JS sources are absent);
+5. fail the build if `widget.js` is missing after the hook runs.
 
 Before writing a custom hook, check whether `hatch-jupyter-builder` (used by the anywidget template and, as far as we know, `manzt/quak`) covers this via its `skip-if-exists` and `ensured-targets` options:
 
@@ -244,12 +252,6 @@ build_cmd = "build:widget"
 Normal Python users should not need Node or pnpm to install or use the PyPI package. Node/pnpm are development and release-build requirements only.
 
 ### 6. Update `.gitignore`
-
-Ignore generated Python widget frontend artifacts, at minimum:
-
-```text
-uchimata-py/src/uchimata/static/widget.js
-```
 
 Done alongside this plan: the `uchimata-py` `.gitignore` entries (`.venv`, `__pycache__`, `.ipynb_checkpoints`; `node_modules`, `dist`, `.DS_Store` were already covered) and the `widget.js` entry were ported to the root `.gitignore`. `.venv` matters beyond Git: Biome reads `.gitignore`, and an unignored `.venv` would make local `biome check .` scan third-party JS in site-packages.
 
@@ -275,9 +277,11 @@ Keep existing JavaScript checks:
 Add Python checks:
 
 - install uv;
+- test on Python 3.11 and 3.14: 3.11 is the version `uchimata-py` was developed on (`.python-version`) and the oldest CPython still supported (3.10 reached end of life in October 2026); 3.14 is the newest. `requires-python = ">=3.8"` claims more than CI tests; consider raising it to `>=3.11` in the 0.5.0 release;
 - install Python dependencies;
 - run Python tests;
-- build Python package.
+- build the Python package with `uv build --out-dir uchimata-py/dist --clear`;
+- check the lockfile with `uv lock --check`.
 
 Add at least one integration/package smoke check:
 
@@ -335,10 +339,11 @@ The root README can be refined separately after the migration mechanics are in p
 4. Add a local widget frontend source and bundling script.
 5. Generate `uchimata-py/src/uchimata/static/widget.js` from local JS.
 6. Add hatch build hook to generate/include the frontend artifact.
-7. Add/update `.gitignore`.
-8. Add CI Python jobs and integration smoke check.
-9. Add the PyPI job to `release.yml` and switch Python to the shared version.
-10. Update docs and old-repo notice.
+7. Add CI Python jobs and integration smoke check.
+8. Add the PyPI job to `release.yml` and switch Python to the shared version.
+9. Update docs and old-repo notice.
+
+(`.gitignore` and `docs/package.json` were already updated alongside this plan.)
 
 ## Open implementation details
 
