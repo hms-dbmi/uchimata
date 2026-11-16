@@ -1,0 +1,11 @@
+{
+  // Type-checks the Python widget frontend (and the src/ files it imports).
+  // Separate from tsconfig.json so the npm declaration output in dist/ is unaffected.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "emitDeclarationOnly": false
+  },
+  "include": ["uchimata-py/js"]
+}

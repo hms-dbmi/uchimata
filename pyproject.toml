@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uchimata"
+license = { text = "MIT" }
+authors = [{ name = "David Kouřil", email = "david.kouril@gmail.com" }]
+version = "0.4.0"
+dependencies = [
+    "anywidget>=0.9.13",
+    "bioframe>=0.8.0",
+    "duckdb>=1.3.2",
+    "marimo>=0.8.22",
+    "numpy>=1.24.4",
+    "pandas>=2.0.3",
+    "pyarrow>=17.0.0",
+]
+readme = "uchimata-py/README.md"
+requires-python = ">=3.8"
+
+[project.urls]
+homepage = "https://github.com/hms-dbmi/uchimata"
+repository = "https://github.com/hms-dbmi/uchimata"
+issues = "https://github.com/hms-dbmi/uchimata/issues"
+
+[dependency-groups]
+dev = [
+    "jupyterlab>=4.2.5",
+    "numpy",
+    "pyarrow",
+    "watchfiles",
+    "nbconvert",
+    "pytest>=8.3.3",
+    "pdoc>=14.7.0",
+]
+
+[tool.hatch.build]
+# Python build output must not go to the root dist/, which is the npm package.
+directory = "uchimata-py/dist"
+# widget.js is generated and gitignored; without this hatch silently leaves it out.
+artifacts = ["uchimata-py/src/uchimata/static/widget.js"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["uchimata-py/src/uchimata"]
+
+[tool.hatch.build.targets.sdist]
+only-include = ["uchimata-py/src/uchimata", "uchimata-py/README.md", "LICENSE"]
+
+[tool.pytest.ini_options]
+testpaths = ["uchimata-py/tests"]
+
+[tool.marimo.runtime]
+output_max_bytes = 15_000_000
