@@ -28,3 +28,11 @@ test-data/
 
 # Observable notebook for testing
 docs/docs/scratchpad.html
+
+# Python (ported from uchimata-py)
+.venv
+__pycache__
+.ipynb_checkpoints
+
+# Generated Python widget frontend (built from local JS, see docs/merge-uchimata-py-plan.md)
+uchimata-py/src/uchimata/static/widget.js
