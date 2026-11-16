@@ -331,6 +331,13 @@ Minimum documentation updates:
 
 The root README can be refined separately after the migration mechanics are in place.
 
+## Working rules for the implementation
+
+- Agents implementing this plan only make changes locally on the current `repo-merge` branch. They do not push, open PRs, or touch the old `uchimata-py` repository on GitHub; the maintainer pushes and inspects. The same applies to anything on PyPI, npm, or GitHub settings (trusted publishers, archiving).
+- Implement the whole merge on the `repo-merge` branch and land it as **one PR**. `release.yml` publishes on every push to `main` that carries a changeset, so landing the merge in pieces risks a release with a half-finished Python pipeline. The `0.5.0` changeset is added last, once everything works.
+- Get the source files from a fresh clone of `hms-dbmi/uchimata-py` (`main`) outside this repository, and copy from there.
+- Moving the widget from esm.sh `uchimata@^0.3.x` (JS 0.3.3) to the local code is the one intended exception to the "no rendering changes" non-goal. The JS API the widget uses (`initScene`, `addStructureToScene`, `display`, `load`) is unchanged since 0.3.3, but behavior changed: SSAO defaults (0.4.3), Arrow parsing via flechette (0.4.1), nominal value → scale mapping (0.4.0). Once `widget.js` builds, run the example notebooks (especially `examples/jupyter/inputs.ipynb`, which covers all input formats) and check that they render.
+
 ## Suggested implementation order
 
 1. Copy Python files into `uchimata-py/` and move/adapt root Python project files.
